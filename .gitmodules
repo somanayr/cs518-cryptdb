@@ -1,0 +1,3 @@
+[submodule "MariaDB4j"]
+	path = MariaDB4j
+	url = git@github.com:vorburger/MariaDB4j.git
