@@ -1,4 +1,4 @@
-package cs518.cryptdb.dbms;
+package cs518.cryptdb.database;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -10,10 +10,21 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-public class Driver {
+public class Database {
+	
+	private static Connection connection; 
 	
 	
-	public static void main(String[] args) throws SQLException {
+	public static void main(String[] args) {
+		try {
+			init();
+			runDBTest(connection);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static void init() throws SQLException {
 		
 		new Thread(new Runnable() {
 			
@@ -47,6 +58,29 @@ public class Driver {
 		Connection conn = DriverManager.
 				getConnection("jdbc:h2:mem:test", "sa", "");
 
+		connection = conn;
+	}
+	
+	public static boolean isQuery(String statement) {
+		return statement.toLowerCase().startsWith("select");
+	}
+	
+	public static ResultSet executeQuery(String statement) throws SQLException {
+		Statement s = connection.createStatement();
+		ResultSet ret = s.executeQuery(statement);
+		s.close();
+		return ret;
+	}
+	
+	public static int executeUpdate(String statement) throws SQLException {
+		Statement s = connection.createStatement();
+		int ret = s.executeUpdate(statement);
+		s.close();
+		return ret;
+	}
+	
+	
+	private static void runDBTest(Connection conn) throws SQLException {
 
 
 		String createString =
