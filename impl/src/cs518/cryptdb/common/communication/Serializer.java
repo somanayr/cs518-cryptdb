@@ -20,12 +20,12 @@ public abstract class Serializer<C> {
 		return s.serialize(o);
 	}
 	
-	public static <T> byte[] toObject(byte[] b) {
-		Serializer<T> s = (Serializer<T>) serializers.get(T.getClass());
+	public static <T> T toObject(byte[] b, Class<T> c) {
+		Serializer<T> s = (Serializer<T>) serializers.get(c);
 		if(s == null) {
-			throw new UnsupportedOperationException("No known serializer for type " + o.getClass());
+			throw new UnsupportedOperationException("No known serializer for type " + c);
 		}
-		return s.serialize(o);
+		return s.deserialize(b);
 	}
 	
 	public abstract byte[] serialize(C obj);

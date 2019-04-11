@@ -1,4 +1,4 @@
-package cs518.cryptdb.database;
+package cs518.cryptdb.dbms;
 
 import java.io.BufferedReader;
 import java.io.IOException;
