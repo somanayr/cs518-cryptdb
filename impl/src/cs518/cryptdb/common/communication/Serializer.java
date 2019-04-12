@@ -1,8 +1,14 @@
 package cs518.cryptdb.common.communication;
 
+import java.nio.ByteBuffer;
 import java.util.HashMap;
 
 public abstract class Serializer<C> {
+	
+	static {
+		registerSerializer(String.class, new StringSerializer());
+		registerSerializer(Integer.class, new IntegerSerializer());
+	}
 	
 	private static HashMap<Class<?>, Serializer<?>> serializers = new HashMap<>();
 	
@@ -31,4 +37,35 @@ public abstract class Serializer<C> {
 	public abstract byte[] serialize(C obj);
 	
 	public abstract C deserialize(byte[] b);
+	
+	
+	
+	private static class StringSerializer extends Serializer<String> {
+
+		@Override
+		public byte[] serialize(String obj) {
+			return obj.getBytes();
+		}
+
+		@Override
+		public String deserialize(byte[] b) {
+			return new String(b);
+		}
+		
+	}
+	
+	private static class IntegerSerializer extends Serializer<Integer> {
+
+		@Override
+		public byte[] serialize(Integer obj) {
+			return ByteBuffer.allocate(4).putInt(obj).array();
+		}
+
+		@Override
+		public Integer deserialize(byte[] b) {
+			return ByteBuffer.wrap(b).getInt();
+		}
+		
+	}
+	
 }
