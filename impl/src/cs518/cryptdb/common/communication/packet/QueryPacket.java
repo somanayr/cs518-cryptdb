@@ -1,7 +1,7 @@
 package cs518.cryptdb.common.communication.packet;
 
 public class QueryPacket extends Packet{
-	
+
 	public static final int PACKET_ID = 1;
 	private String query;
 
