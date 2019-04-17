@@ -53,7 +53,7 @@ public class Database {
 					e.printStackTrace();
 				}
 			}
-		}).start();
+		}).start(); //Do we actually need this??
 		
 		Connection conn = DriverManager.
 				getConnection("jdbc:h2:mem:test", "sa", "");
@@ -65,6 +65,12 @@ public class Database {
 		return statement.toLowerCase().startsWith("select");
 	}
 	
+	/**
+	 * Just SELECT statements
+	 * @param statement
+	 * @return
+	 * @throws SQLException
+	 */
 	public static ResultSet executeQuery(String statement) throws SQLException {
 		Statement s = connection.createStatement();
 		ResultSet ret = s.executeQuery(statement);
@@ -72,6 +78,12 @@ public class Database {
 		return ret;
 	}
 	
+	/**
+	 * Everything but SELECT statements
+	 * @param statement
+	 * @return
+	 * @throws SQLException
+	 */
 	public static int executeUpdate(String statement) throws SQLException {
 		Statement s = connection.createStatement();
 		int ret = s.executeUpdate(statement);

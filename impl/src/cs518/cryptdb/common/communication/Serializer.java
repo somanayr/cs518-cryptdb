@@ -1,7 +1,14 @@
 package cs518.cryptdb.common.communication;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
+
+import javax.sql.rowset.CachedRowSet;
 
 public abstract class Serializer<C> {
 	
@@ -66,6 +73,43 @@ public abstract class Serializer<C> {
 			return ByteBuffer.wrap(b).getInt();
 		}
 		
+	}
+	
+	private static class RowSetSerializer extends Serializer<CachedRowSet> {
+
+		@Override
+		public byte[] serialize(CachedRowSet crs) {
+
+			try {
+				ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
+				ObjectOutputStream oos = new ObjectOutputStream(bytesOut);
+				oos.writeObject(crs);
+				oos.close();
+				return bytesOut.toByteArray();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			return null;
+		}
+
+		@Override
+		public CachedRowSet deserialize(byte[] b) {
+			try {
+				ByteArrayInputStream bis = new ByteArrayInputStream(b);
+				ObjectInputStream ois = new ObjectInputStream(bis);
+				return (CachedRowSet) ois.readObject();
+			}catch (IOException e) {
+				e.printStackTrace();
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			}
+			return null;
+		}
+		
+	}
+
+	public static int toInt(byte[] intB) {
+		return IntegerSerializer.toInt(intB);
 	}
 	
 }

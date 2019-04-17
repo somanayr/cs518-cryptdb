@@ -2,7 +2,7 @@ package cs518.cryptdb.common.communication.packet;
 
 public class QueryPacket extends Packet{
 
-	public static final int PACKET_ID = 1;
+	public static final int PACKET_ID = Packet.QUERY_PACKET_ID;
 	private String query;
 
 	public QueryPacket() {
@@ -10,8 +10,12 @@ public class QueryPacket extends Packet{
 	}
 	
 	public QueryPacket(String query) {
-		super(PACKET_ID);
+		this();
 		this.query = query;
+	}
+	
+	public String getQuery() {
+		return query;
 	}
 
 	@Override
@@ -27,6 +31,10 @@ public class QueryPacket extends Packet{
 	@Override
 	protected Object[] getContents() {
 		return new Object[] {query};
+	}
+	
+	static {
+		Packet.registerPacket(PACKET_ID, QueryPacket.class);
 	}
 	
 }
