@@ -30,14 +30,20 @@ public class CryptoRND {
 	}
 	
 	/* Adapted from https://stackoverflow.com/questions/55263930/aes-deterministic-encryption */
-	public static byte[] encrypt(byte[] key, byte[] iv, String plaintext) {
+	/**
+	 * @param key
+	 * @param iv Should be different for every row in each column
+	 * @param plaintext
+	 * @return
+	 */
+	public static byte[] encrypt(byte[] key, byte[] iv, byte[] plaintext) {
 
 	    try {
 	        SecretKeySpec secretKey = new SecretKeySpec(key, "AES");
 	        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
 	        cipher.init(Cipher.ENCRYPT_MODE, secretKey, new IvParameterSpec(iv));
 
-	        return cipher.doFinal(plaintext.getBytes("UTF-8"));
+	        return cipher.doFinal(plaintext);
 	    } catch (Exception e) {
 	    	e.printStackTrace();
 	    }

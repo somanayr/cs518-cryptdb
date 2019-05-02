@@ -11,36 +11,17 @@ public class CryptoDET {
 	
 	
 	/* Adapted from https://stackoverflow.com/questions/55263930/aes-deterministic-encryption */
-	public static byte[] encryptID(byte[] key, String plaintext) {
-
-	    try {
-	        SecretKeySpec secretKey = new SecretKeySpec(key, "AES");
-	        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
-	        cipher.init(Cipher.ENCRYPT_MODE, secretKey, new IvParameterSpec(new byte[cipher.getBlockSize()]));
-
-	        return cipher.doFinal(plaintext.getBytes("UTF-8"));
-	    } catch (Exception e) {
-	    	e.printStackTrace();
-	    }
-
-	    return null;
+	/**
+	 * @param key
+	 * @param iv Should depend only on the column
+	 * @param plaintext
+	 * @return
+	 */
+	public static byte[] encrypt(byte[] key, byte[] iv, byte[] plaintext) {
+		return CryptoRND.encrypt(key, iv, plaintext);
 	}
 
-	public static String decryptID(byte[] key, String ciphertext) {
-
-	    String decryptedID = "";
-
-	    try {
-	        SecretKeySpec secretKey = new SecretKeySpec(key, "AES");
-	        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
-	        cipher.init(Cipher.DECRYPT_MODE, secretKey, new IvParameterSpec(new byte[cipher.getBlockSize()]));
-
-	        byte[] decodedValue = cipher.doFinal(new BASE64Decoder().decodeBuffer(ciphertext));
-	        decryptedID = new String(decodedValue);
-
-	    } catch (Exception e) {
-	        e.printStackTrace();
-	    }
-	    return decryptedID;
+	public static byte[] decrypt(byte[] key, byte[] iv, byte[]  ciphertext) {
+		return CryptoRND.decrypt(key, iv, ciphertext);
 	}
 }

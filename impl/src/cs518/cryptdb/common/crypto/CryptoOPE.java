@@ -11,7 +11,6 @@ import sun.misc.BASE64Encoder;
 public class CryptoOPE {
 	
 	
-	/* Adapted from https://stackoverflow.com/questions/55263930/aes-deterministic-encryption */
 	public static byte[] encryptID(byte[] key, byte[] plaintext) {
 		FastOpeCipher cipher = new FastOpeCipher();
 		return cipher.decodeKey(key).encrypt(plaintext);
