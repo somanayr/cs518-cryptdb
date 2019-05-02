@@ -9,6 +9,7 @@ import sun.misc.BASE64Encoder;
 
 public class CryptoDET {
 	
+	private static byte[] iv;
 	
 	/* Adapted from https://stackoverflow.com/questions/55263930/aes-deterministic-encryption */
 	/**
@@ -17,11 +18,17 @@ public class CryptoDET {
 	 * @param plaintext
 	 * @return
 	 */
-	public static byte[] encrypt(byte[] key, byte[] iv, byte[] plaintext) {
+	public static byte[] encrypt(byte[] key, byte[] plaintext) {
+		if(iv == null) {
+			iv = new byte[CryptoRND.getBlockSize()];
+		}
 		return CryptoRND.encrypt(key, iv, plaintext);
 	}
 
-	public static byte[] decrypt(byte[] key, byte[] iv, byte[]  ciphertext) {
+	public static byte[] decrypt(byte[] key, byte[]  ciphertext) {
+		if(iv == null) {
+			iv = new byte[CryptoRND.getBlockSize()];
+		}
 		return CryptoRND.decrypt(key, iv, ciphertext);
 	}
 }

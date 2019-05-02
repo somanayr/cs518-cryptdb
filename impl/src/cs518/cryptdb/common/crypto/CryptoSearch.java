@@ -9,7 +9,7 @@ import sun.misc.BASE64Decoder;
 import sun.misc.BASE64Encoder;
 
 public class CryptoSearch {
-	public static String encrypt(byte[] key, byte[] iv, String plaintext) {
+	public static String encrypt(byte[] key, String plaintext) {
 		Pattern p = Pattern.compile("([^\\w\\+\\/]*)(\\w\\+\\/]+)([^\\w\\+\\/]*)");
 		Matcher m = p.matcher(plaintext);
 		StringBuffer buffer = new StringBuffer();
@@ -17,7 +17,7 @@ public class CryptoSearch {
 			String pre = m.group(1);
 			String word = m.group(2);
 			String post = m.group(3);
-			byte[] ct = CryptoDET.encrypt(key, iv, Serializer.toBytes(word));
+			byte[] ct = CryptoDET.encrypt(key, Serializer.toBytes(word));
 			buffer.append(pre);
 			buffer.append(new BASE64Encoder().encode(ct));
 			buffer.append(post);
@@ -25,7 +25,7 @@ public class CryptoSearch {
 		return buffer.toString();
 	}
 	
-	public static String decrypt(byte[] key, byte[] iv, String ciphertext) throws IOException {
+	public static String decrypt(byte[] key, String ciphertext) throws IOException {
 		Pattern p = Pattern.compile("([^\\w\\+\\/]*)(\\w\\+\\/]+)([^\\w\\+\\/]*)");
 		Matcher m = p.matcher(ciphertext);
 		StringBuffer buffer = new StringBuffer();
@@ -33,7 +33,7 @@ public class CryptoSearch {
 			String pre = m.group(1);
 			String word = m.group(2);
 			String post = m.group(3);
-			byte[] ct = CryptoDET.decrypt(key, iv, new BASE64Decoder().decodeBuffer(word));
+			byte[] ct = CryptoDET.decrypt(key,  new BASE64Decoder().decodeBuffer(word));
 			buffer.append(pre);
 			buffer.append(Serializer.toObject(ct, String.class));
 			buffer.append(post);

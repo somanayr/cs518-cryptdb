@@ -11,12 +11,12 @@ import sun.misc.BASE64Encoder;
 public class CryptoOPE {
 	
 	
-	public static byte[] encryptID(byte[] key, byte[] plaintext) {
+	public static byte[] encrypt(byte[] key, byte[] plaintext) {
 		FastOpeCipher cipher = new FastOpeCipher();
 		return cipher.decodeKey(key).encrypt(plaintext);
 	}
 
-	public static byte[] decryptID(byte[] key, byte[] ciphertext) {
+	public static byte[] decrypt(byte[] key, byte[] ciphertext) {
 		FastOpeCipher cipher = new FastOpeCipher();
 		return cipher.decodeKey(key).decrypt(ciphertext);
 	}
