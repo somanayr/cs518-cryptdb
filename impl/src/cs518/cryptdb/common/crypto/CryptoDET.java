@@ -11,21 +11,19 @@ public class CryptoDET {
 	
 	
 	/* Adapted from https://stackoverflow.com/questions/55263930/aes-deterministic-encryption */
-	public static String encryptID(byte[] key, String plaintext) {
-
-	    String encryptedID = "";
+	public static byte[] encryptID(byte[] key, String plaintext) {
 
 	    try {
 	        SecretKeySpec secretKey = new SecretKeySpec(key, "AES");
 	        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
 	        cipher.init(Cipher.ENCRYPT_MODE, secretKey, new IvParameterSpec(new byte[cipher.getBlockSize()]));
 
-	        encryptedID = new BASE64Encoder().encodeBuffer(cipher.doFinal(plaintext.getBytes("UTF-8")));
+	        return cipher.doFinal(plaintext.getBytes("UTF-8"));
 	    } catch (Exception e) {
 	    	e.printStackTrace();
 	    }
 
-	    return encryptedID;
+	    return null;
 	}
 
 	public static String decryptID(byte[] key, String ciphertext) {

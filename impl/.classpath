@@ -3,5 +3,6 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="/home/ramos/classes/cs518/project/lib/h2-1.4.199.jar"/>
+	<classpathentry kind="lib" path="/home/ramos/classes/cs518/project/lib/ope.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
