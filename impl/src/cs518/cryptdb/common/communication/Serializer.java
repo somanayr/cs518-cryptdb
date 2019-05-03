@@ -12,12 +12,12 @@ import javax.sql.rowset.CachedRowSet;
 
 public abstract class Serializer<C> {
 	
+	private static HashMap<Class<?>, Serializer<?>> serializers = new HashMap<>();
+	
 	static {
 		registerSerializer(String.class, new StringSerializer());
 		registerSerializer(Integer.class, new IntegerSerializer());
 	}
-	
-	private static HashMap<Class<?>, Serializer<?>> serializers = new HashMap<>();
 	
 	public static void registerSerializer(Class<?> type, Serializer s) {
 		if(!serializers.containsKey(type)) {
