@@ -5,8 +5,6 @@ import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Random;
 
-import sun.misc.BASE64Encoder;
-
 public class CryptoTest {
 	
 	private static Random r = new Random();
@@ -95,7 +93,7 @@ public class CryptoTest {
 	}
 	
 	private static void testOPE() {
-		byte[] key = CryptoOPE.genKey();
+		byte[] key = CryptoOPE.generateKey();
 		
 		for (int i = 0; i < 200; i++) {
 			byte[] a = randIv();

@@ -4,7 +4,7 @@ import ope.fast.FastOpeCipher;
 
 public class CryptoOPE {
 	
-	public static byte[] genKey() {
+	public static byte[] generateKey() {
 		FastOpeCipher cipher = new FastOpeCipher();
 		return cipher.generateKey().encodeKey();
 	}

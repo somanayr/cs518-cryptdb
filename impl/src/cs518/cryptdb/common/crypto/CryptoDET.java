@@ -9,6 +9,10 @@ import sun.misc.BASE64Encoder;
 
 public class CryptoDET {
 	
+	public static byte[] generateKey() {
+		return CryptoRND.generateKey();
+	}
+	
 	private static byte[] iv;
 	
 	/* Adapted from https://stackoverflow.com/questions/55263930/aes-deterministic-encryption */

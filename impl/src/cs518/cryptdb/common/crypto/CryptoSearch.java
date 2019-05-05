@@ -10,6 +10,11 @@ import sun.misc.BASE64Decoder;
 import sun.misc.BASE64Encoder;
 
 public class CryptoSearch {
+	
+	public static byte[] generateKey() {
+		return CryptoRND.generateKey();
+	}
+	
 	public static String encrypt(byte[] key, String plaintext) {
 		Pattern p = Pattern.compile("([^\\w\\+\\/]*)([\\w\\+\\/\\=]+)([^\\w\\+\\/]*)");
 		Matcher m = p.matcher(plaintext);

@@ -1,8 +1,12 @@
 package cs518.cryptdb.common.crypto;
 
+import java.security.KeyPairGenerator;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 
 import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
@@ -11,6 +15,32 @@ import sun.misc.BASE64Decoder;
 import sun.misc.BASE64Encoder;
 
 public class CryptoRND {
+	
+	public static byte[] generateKey() {
+		KeyGenerator gen;
+		try {
+			gen = KeyGenerator.getInstance("AES");
+			gen.init(256);
+			return gen.generateKey().getEncoded();
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	public static byte[] generateKey(String passphrase) {
+		KeyGenerator gen;
+		try {
+			gen = KeyGenerator.getInstance("AES");
+			MessageDigest digest = MessageDigest.getInstance("SHA-256");
+			byte[] hash = digest.digest(passphrase.getBytes());
+			gen.init(256, new SecureRandom(hash));
+			return gen.generateKey().getEncoded();
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 	
 	private static int blockSize = -1;
 	
