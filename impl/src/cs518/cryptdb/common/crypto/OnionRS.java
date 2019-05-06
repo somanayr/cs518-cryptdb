@@ -3,9 +3,9 @@ package cs518.cryptdb.common.crypto;
 import java.io.IOException;
 
 public class OnionRS {
-	public byte[] makeOnion(byte[] keyRND, byte[] ivRND, byte[] keySearch, String plaintext) {
+	public byte[] makeOnion(byte[] keyRND, byte[] ivRND, byte[] keySearch, byte[] plaintext) {
 		return CryptoRND.encrypt(keyRND, ivRND,
-				CryptoSearch.encrypt(keySearch, plaintext).getBytes()
+				CryptoSEARCH.encrypt(keySearch, plaintext)
 				);
 	}
 	
@@ -13,20 +13,15 @@ public class OnionRS {
 		return CryptoRND.decrypt(keyRND, ivRND, ciphertext);
 	}
 	
-	public String removeSearch(byte[] keySearch, byte[] ciphertext) {
-		try {
-			return CryptoSearch.decrypt(keySearch, new String(ciphertext));
-		} catch (IOException e) {
-			e.printStackTrace();
-			return null;
-		}
+	public byte[] removeSearch(byte[] keySearch, byte[] ciphertext) {
+		return CryptoSEARCH.decrypt(keySearch, ciphertext);
 	}
 	
-	public String removeFromRND(byte[] keyRND, byte[] ivRND, byte[] keySearch, byte[] ciphertext) {
+	public byte[] removeFromRND(byte[] keyRND, byte[] ivRND, byte[] keySearch, byte[] ciphertext) {
 		return removeSearch(keySearch, removeRND(keyRND, ivRND, ciphertext));
 	}
 	
-	public String removeFromSearch(byte[] keySearch, byte[] ciphertext) {
+	public byte[] removeFromSearch(byte[] keySearch, byte[] ciphertext) {
 		return removeSearch(keySearch, ciphertext);
 	}
 }

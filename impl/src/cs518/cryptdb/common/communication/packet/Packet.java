@@ -16,6 +16,7 @@ public abstract class Packet {
 	public static final int QUERY_PACKET_ID = 1;
 	public static final int RESULT_PACKET_ID = 2;
 	public static final int STATUS_PACKET_ID = 3;
+	public static final int DEONION_PACKET_ID = 4;
 	
 	
 	private static Map<Integer,Class<? extends Packet>> packets = new HashMap<>();

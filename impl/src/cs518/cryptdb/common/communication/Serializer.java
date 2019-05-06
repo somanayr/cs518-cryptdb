@@ -10,6 +10,8 @@ import java.util.HashMap;
 
 import javax.sql.rowset.CachedRowSet;
 
+import cs518.cryptdb.common.crypto.CryptoScheme;
+
 public abstract class Serializer<C> {
 	
 	private static HashMap<Class<?>, Serializer<?>> serializers = new HashMap<>();
@@ -17,6 +19,9 @@ public abstract class Serializer<C> {
 	static {
 		registerSerializer(String.class, new StringSerializer());
 		registerSerializer(Integer.class, new IntegerSerializer());
+		registerSerializer(CryptoScheme.class, new CryptoSchemeSerializer());
+		registerSerializer(byte[].class, new ByteArraySerializer());
+		registerSerializer(CachedRowSet.class, new RowSetSerializer());
 	}
 	
 	public static void registerSerializer(Class<?> type, Serializer s) {
@@ -71,6 +76,34 @@ public abstract class Serializer<C> {
 		@Override
 		public Integer deserialize(byte[] b) {
 			return ByteBuffer.wrap(b).getInt();
+		}
+		
+	}
+	
+	private static class ByteArraySerializer extends Serializer<byte[]> {
+
+		@Override
+		public byte[] serialize(byte[] obj) {
+			return obj;
+		}
+
+		@Override
+		public byte[] deserialize(byte[] b) {
+			return b;
+		}
+		
+	}
+	
+	private static class CryptoSchemeSerializer extends Serializer<CryptoScheme> {
+
+		@Override
+		public byte[] serialize(CryptoScheme obj) {
+			return IntegerSerializer.toBytes(obj.ordinal());
+		}
+
+		@Override
+		public CryptoScheme deserialize(byte[] b) {
+			return CryptoScheme.values()[IntegerSerializer.toInt(b)];
 		}
 		
 	}

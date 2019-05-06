@@ -36,21 +36,25 @@ public class CryptoTest {
 	public static void main(String[] args) {
 		try {
 			testRND();
+			System.out.println("RND Passed");
 		} catch (AssertionError e) {
 			e.printStackTrace();
 		}
 		try {
 			testDET();
+			System.out.println("DET Passed");
 		} catch (AssertionError e) {
 			e.printStackTrace();
 		}
 		try {
 			testSEARCH();
+			System.out.println("SEARCH Passed");
 		} catch (AssertionError e) {
 			e.printStackTrace();
 		}
 		try {
 			testOPE();
+			System.out.println("OPE Passed");
 		} catch (AssertionError e) {
 			e.printStackTrace();
 		}
@@ -120,21 +124,21 @@ public class CryptoTest {
 	}
 	
 	private static void testSEARCH() {
-		String a = "/hello world, cruel! world;";
-		String b = "world";
-		String c = "World";
-		String d = "!";
-		String e = "=";
+		byte[] a = "/hello world, cruel! world;".getBytes();
+		byte[] b = "world".getBytes();
+		byte[] c = "World".getBytes();
+		byte[] d = "!".getBytes();
+		byte[] e = "=".getBytes();
 		byte[] key = randKey();
 		
-		String cA = CryptoSearch.encrypt(key, a);
-		String cB = CryptoSearch.encrypt(key, b);
-		String cC = CryptoSearch.encrypt(key, c);
-		String cD = CryptoSearch.encrypt(key, d);
-		String cE = CryptoSearch.encrypt(key, e);
+		String cA = new String(CryptoSEARCH.encrypt(key, a));
+		String cB = new String(CryptoSEARCH.encrypt(key, b));
+		String cC = new String(CryptoSEARCH.encrypt(key, c));
+		String cD = new String(CryptoSEARCH.encrypt(key, d));
+		String cE = new String(CryptoSEARCH.encrypt(key, e));
 		
 		ensure(!cA.equals(cB));
-		ensure(!cA.contains(b));
+		ensure(!cA.contains(new String(b)));
 		
 		ensure(cA.contains(cB));
 		ensure(cA.contains(cD));
@@ -143,12 +147,8 @@ public class CryptoTest {
 		ensure(!cA.contains(cE));
 		
 		String pA;
-		try {
-			pA = CryptoSearch.decrypt(key, cA);
-			ensure(pA.equals(a));
-		} catch (IOException ex) {
-			ex.printStackTrace();
-		}
+		pA = new String(CryptoSEARCH.decrypt(key, cA.getBytes()));
+		ensure(pA.equals(new String(a)));
 		
 	}
 }
