@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<classpath>
-	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="src" path="test"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/ope"/>
-	<classpathentry kind="lib" path="/home/ramos/classes/cs518/cs518-cryptdb/lib/h2-1.4.199.jar"/>
-	<classpathentry kind="output" path="bin"/>
-</classpath>
