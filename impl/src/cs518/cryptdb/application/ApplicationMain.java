@@ -15,7 +15,6 @@ public class ApplicationMain implements PacketHandler {
 
 	public ApplicationMain(String proxy, int proxyPort) throws IOException, SQLException {
 		io = new PacketIO(proxy, proxyPort, this); //No parent port
-		EncryptedDatabase.init();
 	}
 
 	@Override
