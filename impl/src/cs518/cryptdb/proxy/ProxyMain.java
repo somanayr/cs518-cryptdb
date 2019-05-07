@@ -17,11 +17,11 @@ import cs518.cryptdb.common.crypto.CryptoScheme;
 import cs518.cryptdb.database.Database;
 import cs518.cryptdb.database.EncryptedDatabase;
 
-public class Proxy implements PacketHandler {
+public class ProxyMain implements PacketHandler {
 	
 	private PacketIO io;
 	
-	public Proxy() throws IOException, SQLException {
+	public ProxyMain() throws IOException, SQLException {
 		io = new PacketIO(null, -1, this); //No parent port
 	}
 	
@@ -50,7 +50,7 @@ public class Proxy implements PacketHandler {
 	
 	public static void main(String[] args) {
 		try {
-			new Proxy();
+			new ProxyMain();
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (SQLException e) {
