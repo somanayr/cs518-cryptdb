@@ -55,7 +55,7 @@ public class OnionRS extends Onion{
 	}
 
 	@Override
-	public boolean isSupported(CryptoScheme s) {
+	public boolean canHandle(CryptoScheme s) {
 		switch(s) {
 		case RND:
 			return true;
@@ -69,12 +69,25 @@ public class OnionRS extends Onion{
 	}
 
 	@Override
+	public boolean isSupported(CryptoScheme s) {
+		switch(s) {
+		case RND:
+		case SEARCH:
+		case NONE:
+			return true;
+		default:
+			return false;
+		}
+	}
+
+	@Override
 	public List<Pair<CryptoScheme, byte[]>> deOnion(CryptoScheme s) {
 		List<Pair<CryptoScheme, byte[]>> ret = new LinkedList<>();
 		switch(s) {
 		case NONE:
 			if(keySEARCH != null) {
 				ret.add(new Pair<CryptoScheme, byte[]>(CryptoScheme.SEARCH, keySEARCH));
+				keySEARCH = null;
 			}
 		case SEARCH:
 			if(keyRND != null) {

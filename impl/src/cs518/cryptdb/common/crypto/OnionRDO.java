@@ -76,7 +76,7 @@ public class OnionRDO extends Onion{
 	}
 
 	@Override
-	public boolean isSupported(CryptoScheme s) {
+	public boolean canHandle(CryptoScheme s) {
 		switch(s) {
 		case RND:
 			return true;
@@ -90,6 +90,19 @@ public class OnionRDO extends Onion{
 			return false;
 		}
 	}
+	
+	@Override
+	public boolean isSupported(CryptoScheme s) {
+		switch(s) {
+		case RND:
+		case DET:
+		case OPE:
+		case NONE:
+			return true;
+		default:
+			return false;
+		}
+	}
 
 	@Override
 	public List<Pair<CryptoScheme, byte[]>> deOnion(CryptoScheme s) {
@@ -98,14 +111,17 @@ public class OnionRDO extends Onion{
 		case NONE:
 			if(keyOPE != null) {
 				ret.add(new Pair<CryptoScheme, byte[]>(CryptoScheme.OPE, keyOPE));
+				keyOPE = null;
 			}
 		case OPE:
 			if(keyDET != null) {
 				ret.add(new Pair<CryptoScheme, byte[]>(CryptoScheme.DET, keyDET));
+				keyDET = null;
 			}
 		case DET:
 			if(keyRND != null) {
 				ret.add(new Pair<CryptoScheme, byte[]>(CryptoScheme.RND, keyRND));
+				keyRND = null;
 			}
 		case RND:
 			break;
