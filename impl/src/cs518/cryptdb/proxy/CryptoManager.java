@@ -40,7 +40,7 @@ public class CryptoManager {
 	
 	/*
 	 * FIXME: what type should rowId be?
-	 * FIXME: do we determine virtual column & column from columnID? Or split them
+	 * FIXME: do we determine subcolumn & column from columnID? Or split them
 	 */
 	public byte[] decrypt(String tableId, String columnId, String subColumn, String rowId, byte[] ciphertext) {
 		return schemaAnnotation.get(tableId).get(columnId).get(subColumn).decrypt(ciphertext, tableId, columnId, rowId);
@@ -53,7 +53,7 @@ public class CryptoManager {
 	}
 	
 	/*
-	 * Returns the virtual column name and encrypted data
+	 * Returns the subcolumn name and encrypted data
 	 */
 	public Pair<String, byte[]> encrypt(String tableId, String columnId, String rowId, byte[] plaintext, CryptoScheme scheme) {
 		for(String subColumn : schemaAnnotation.get(tableId).get(columnId).keySet()) {

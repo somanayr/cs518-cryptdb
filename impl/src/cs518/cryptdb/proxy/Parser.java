@@ -10,7 +10,7 @@ public class Parser {
 	/**
 	 * Determines the encryption scheme needs to fulfill the statement for each column
 	 * @param statement
-	 * @return A map of virtual table name -> virtual column name -> scheme
+	 * @return A map of table name -> column name -> scheme
 	 */
 	public static Map<String, Map<String, CryptoScheme>> getNeedSchemes(String statement) {
 		throw new NotImplementedException();
