@@ -1,3 +1,6 @@
 [submodule "ope"]
 	path = ope
 	url = https://github.com/aymanmadkour/ope.git
+[submodule "JSqlParser"]
+	path = JSqlParser
+	url = https://github.com/JSQLParser/JSqlParser.git
