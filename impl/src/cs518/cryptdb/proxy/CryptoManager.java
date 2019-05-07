@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import cs518.cryptdb.common.crypto.CryptoRND;
 import cs518.cryptdb.common.crypto.CryptoScheme;
 import cs518.cryptdb.common.crypto.Onion;
 import cs518.cryptdb.common.crypto.OnionRDO;
@@ -23,6 +24,13 @@ public class CryptoManager {
 	 * Virtual Table Name -> Virtual Column Name -> Sub Column Name -> Onion  
 	 */
 	private Map<String,Map<String,Map<String, Onion>>> schemaAnnotation = new HashMap<>();
+	private byte[] nameKey;
+	
+	public CryptoManager() {
+		nameKey = CryptoRND.generateKey();
+	}
+	
+	//TODO encrypt column names
 	
 	public void addTable(String tableId, String[] columnIds) {
 		schemaAnnotation.put(tableId, new HashMap<>());

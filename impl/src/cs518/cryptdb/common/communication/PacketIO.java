@@ -100,7 +100,11 @@ public class PacketIO {
 	
 	public synchronized void sendPacket(int childId, Packet p) throws IOException {
 		listeners.get(childId).send(p);
-		throw new NotImplementedException();
+//		throw new NotImplementedException();
 		//TODO
+	}
+	
+	public int getPort() {
+		return port;
 	}
 }

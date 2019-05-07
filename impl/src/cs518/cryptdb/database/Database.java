@@ -16,6 +16,9 @@ public class Database {
 	
 	public static void init() throws SQLException {
 		
+		if(connection != null)
+			return;
+		
 		new Thread(new Runnable() {
 			
 			@Override

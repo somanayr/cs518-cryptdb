@@ -19,8 +19,9 @@ public class DatabaseMain implements PacketHandler {
 	
 	private PacketIO io;
 
-	public DatabaseMain() throws IOException {
+	public DatabaseMain() throws IOException, SQLException {
 		io = new PacketIO(null, -1, this); //No parent port
+		EncryptedDatabase.init();
 	}
 
 	@Override
@@ -30,10 +31,10 @@ public class DatabaseMain implements PacketHandler {
 				Packet response;
 				QueryPacket qp = (QueryPacket) p;
 				String stmt = qp.getQuery();
-				if(Database.isQuery(stmt)) {
-					response = new ResultPacket(Database.executeQuery(stmt));
+				if(EncryptedDatabase.isQuery(stmt)) {
+					response = new ResultPacket(EncryptedDatabase.executeQuery(stmt));
 				} else {
-					response = new StatusPacket(Database.executeUpdate(stmt));
+					response = new StatusPacket(EncryptedDatabase.executeUpdate(stmt));
 				}
 				io.sendPacket(p.getChildId(), response);
 			} catch (SQLException e) {
@@ -43,10 +44,14 @@ public class DatabaseMain implements PacketHandler {
 			}
 		} else if(p instanceof DeOnionPacket) {
 			DeOnionPacket d = (DeOnionPacket) p;
-			deOnion(d.getScheme(), d.getKey(), d.getTableId(), d.getColumnId());
+			EncryptedDatabase.deOnion(d.getScheme(), d.getKey(), d.getTableId(), d.getColumnId());
 		} else {
 			System.err.println("Unsupported packet: " + p);
 		}
+	}
+	
+	public int getPort() {
+		return io.getPort();
 	}
 	
 	public static void main(String[] args) {
@@ -54,21 +59,10 @@ public class DatabaseMain implements PacketHandler {
 			new DatabaseMain();
 		} catch (IOException e) {
 			e.printStackTrace();
-		}
-	}
-	
-	public static void deOnion(CryptoScheme scheme, byte[] key, String tableId, String columnId) {
-		try {
-			ResultSet rs = Database.executeQuery(String.format("SELECT ROWID, %s FROM %s;", columnId, tableId));
-			while(rs.next()) {
-				byte[] oldVal = rs.getBytes(columnId);
-				byte[] newVal = CryptoScheme.decrypt(scheme, key, tableId, columnId, rs.getRowId(columnId).toString(), oldVal);
-				rs.updateBytes(columnId, newVal);
-			}
 		} catch (SQLException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
 	}
 
 }
