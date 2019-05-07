@@ -1,5 +1,8 @@
 package cs518.cryptdb.proxy;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import cs518.cryptdb.common.crypto.CryptoScheme;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
@@ -12,7 +15,7 @@ public class CryptoManager {
 	 */
 	
 	
-	
+	Map<String,Map<String,CryptoScheme>> schemaAnnotation = new HashMap<>();
 	
 	/*
 	 * FIXME: what type should rowId be?
@@ -25,8 +28,6 @@ public class CryptoManager {
 		throw new NotImplementedException();
 	}
 	
-	public static void updateEncryption(String statement) {
-		CryptoScheme scheme = CryptoScheme.getScheme(statement);
-		throw new NotImplementedException();
+	public static void updateEncryptionSchemes(Map<String, CryptoScheme> schemes) {
 	}
 }
