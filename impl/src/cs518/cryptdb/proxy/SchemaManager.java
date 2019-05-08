@@ -60,15 +60,17 @@ public class SchemaManager {
 	
 	//TODO encrypt column names
 	
-	public void addTable(String tableId, String[] columnIds) {
+	public List<String> addTable(String tableId, String[] columnIds) {
 		if(tableNames.containsKey(tableId))
 			throw new IllegalArgumentException("Table ID already registered: " + tableId);
 		tableNames.put(tableId, getRandomString());
 		columnNames.put(tableId, new HashMap<>());
 		schemaAnnotation.put(tableId, new LinkedHashMap<>());
+		List<String> ret = new ArrayList<>();
 		for(String columnId : columnIds) {
-			insertColumn(tableId, columnId);
+			ret.addAll(insertColumn(tableId, columnId));
 		}
+		return ret;
 	}
 	
 	public List<String> insertColumn(String tableId, String columnId) {
