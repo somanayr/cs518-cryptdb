@@ -71,7 +71,7 @@ public class SchemaManager {
 		}
 	}
 	
-	public void insertColumn(String tableId, String columnId) {
+	public List<String> insertColumn(String tableId, String columnId) {
 		if(columnNames.get(tableId).containsKey(columnId))
 			throw new IllegalArgumentException("Column ID already registered: " + tableId + " : " + columnId);
 		Map<String, Onion> col = new LinkedHashMap<>();
@@ -79,6 +79,10 @@ public class SchemaManager {
 		col.put(String.format("%s_%d", columnId, 1), new OnionRS());
 		schemaAnnotation.get(tableId).put(columnId, col);
 		columnNames.get(tableId).put(columnId, getRandomString());
+		List<String> ret = new ArrayList<>();
+		ret.add(String.format("%s_%d", columnId, 0));
+		ret.add(String.format("%s_%d", columnId, 1));
+		return ret;
 	}
 	
 	/**
