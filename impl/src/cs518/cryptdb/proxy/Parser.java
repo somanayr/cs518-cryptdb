@@ -50,7 +50,6 @@ public class Parser {
 	
 	public QueryPacket parseQuery(QueryPacket qp) throws JSQLParserException {
 		String originalQuery = qp.getQuery();
-		CryptoManager cmgr = new CryptoManager();
 		
 		StringBuilder buffer = new StringBuilder();
 		ExpressionDeParser expr = new substituteEncryptedCols();
