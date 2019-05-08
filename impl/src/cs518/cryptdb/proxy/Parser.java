@@ -7,7 +7,7 @@ import java.util.Map;
 import cs518.cryptdb.common.communication.packet.Packet;
 import cs518.cryptdb.common.communication.packet.QueryPacket;
 import cs518.cryptdb.common.crypto.CryptoScheme;
-import cs518.cryptdb.proxy.CryptoManager;
+import cs518.cryptdb.proxy.SchemaManager;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import net.sf.jsqlparser.JSQLParserException;
@@ -23,9 +23,9 @@ import net.sf.jsqlparser.util.deparser.StatementDeParser;
 import net.sf.jsqlparser.util.TablesNamesFinder;
 
 public class Parser {
-	private static CryptoManager cmgr;
+	private static SchemaManager cmgr;
 	
-	public Parser(CryptoManager cryptoMgr) {
+	public Parser(SchemaManager cryptoMgr) {
 		cmgr = cryptoMgr;
 	}
 	

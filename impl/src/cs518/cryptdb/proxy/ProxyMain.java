@@ -26,7 +26,7 @@ public class ProxyMain implements PacketHandler {
 	
 	public ProxyMain(String addr, int dbPort) throws IOException, SQLException {
 		io = new PacketIO(addr, dbPort, this); // take DatabaseMain as parent port
-		CryptoManager cm = new CryptoManager(io);
+		SchemaManager cm = new SchemaManager(io);
 		parser = new Parser(cm);
 	}
 	

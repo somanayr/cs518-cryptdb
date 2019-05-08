@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -20,7 +21,7 @@ import cs518.cryptdb.common.crypto.OnionRS;
 import cs518.cryptdb.common.pair.Pair;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
-public class CryptoManager {
+public class SchemaManager {
 	/*
 	 * This class will take column and row ID and encrypt/decrypt appropriately
 	 * 
@@ -53,7 +54,7 @@ public class CryptoManager {
 	private Set<String> usedNames = new HashSet<>();
 	private PacketIO io;
 	
-	public CryptoManager(PacketIO io) {
+	public SchemaManager(PacketIO io) {
 		this.io = io;
 	}
 	
@@ -64,7 +65,7 @@ public class CryptoManager {
 			throw new IllegalArgumentException("Table ID already registered: " + tableId);
 		tableNames.put(tableId, getRandomString());
 		columnNames.put(tableId, new HashMap<>());
-		schemaAnnotation.put(tableId, new HashMap<>());
+		schemaAnnotation.put(tableId, new LinkedHashMap<>());
 		for(String columnId : columnIds) {
 			insertColumn(tableId, columnId);
 		}
@@ -73,13 +74,25 @@ public class CryptoManager {
 	public void insertColumn(String tableId, String columnId) {
 		if(columnNames.get(tableId).containsKey(columnId))
 			throw new IllegalArgumentException("Column ID already registered: " + tableId + " : " + columnId);
-		Map<String, Onion> col = new HashMap<>();
+		Map<String, Onion> col = new LinkedHashMap<>();
 		col.put(String.format("%s_%d", columnId, 0), new OnionRDO());
 		col.put(String.format("%s_%d", columnId, 1), new OnionRS());
 		schemaAnnotation.get(tableId).put(columnId, col);
 		columnNames.get(tableId).put(columnId, getRandomString());
 	}
 	
+	/**
+	 * 
+	 * @return Ordered list of virtual columns
+	 */
+	public List<String> getVirtualColumns(String tableId) {
+		return new ArrayList<>(schemaAnnotation.get(tableId).keySet());
+	}
+	
+	/**
+	 * 
+	 * @return Ordered list of subcolumns
+	 */
 	public List<String> getAllSubcolumns(String tableId, String columnId) {
 		return new ArrayList<String>(schemaAnnotation.get(tableId).get(columnId).keySet());
 	}
