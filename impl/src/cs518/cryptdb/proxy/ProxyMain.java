@@ -21,8 +21,8 @@ public class ProxyMain implements PacketHandler {
 	
 	private PacketIO io;
 	
-	public ProxyMain() throws IOException, SQLException {
-		io = new PacketIO(null, -1, this); //No parent port
+	public ProxyMain(String addr, int dbPort) throws IOException, SQLException {
+		io = new PacketIO(addr, dbPort, this); // take DatabaseMain as parent port
 	}
 	
 	@Override
@@ -48,9 +48,13 @@ public class ProxyMain implements PacketHandler {
 		}
 	}
 	
+	int getPort() {
+		return io.getPort();
+	}
+	
 	public static void main(String[] args) {
 		try {
-			new ProxyMain();
+			new ProxyMain("localhost", 0);
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (SQLException e) {
