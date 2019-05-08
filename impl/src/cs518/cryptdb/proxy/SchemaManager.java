@@ -81,6 +81,8 @@ public class SchemaManager {
 		col.put(String.format("%s_%d", columnId, 1), new OnionRS());
 		schemaAnnotation.get(tableId).put(columnId, col);
 		columnNames.get(tableId).put(columnId, getRandomString());
+		columnNames.get(tableId).put(String.format("%s_%d", columnId, 0), getRandomString());
+		columnNames.get(tableId).put(String.format("%s_%d", columnId, 1), getRandomString());
 		List<String> ret = new ArrayList<>();
 		ret.add(String.format("%s_%d", columnId, 0));
 		ret.add(String.format("%s_%d", columnId, 1));
