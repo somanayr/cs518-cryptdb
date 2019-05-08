@@ -1,8 +1,11 @@
 package cs518.cryptdb.proxy;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
+import java.util.Set;
 
 import cs518.cryptdb.common.crypto.CryptoRND;
 import cs518.cryptdb.common.crypto.CryptoScheme;
@@ -19,20 +22,40 @@ public class CryptoManager {
 	 * We could try to make this lower latency by piggybacking key table queries on the existing SQL query, but for now it's not a concern
 	 * 
 	 */
+	private static final char[] CHARSET = ("abcdefghijklmnopqrstuvwxyz" + "abcdefghijklmnopqrstuvwxyz".toUpperCase() + "1234567890").toCharArray();
+	private static final int NUMCHARS = 10;
+	
+	private String getRandomString() {
+		Random r = new Random();
+		char[] s = new char[NUMCHARS];
+		for (int i = 0; i < s.length; i++) {
+			s[i] = CHARSET[r.nextInt(CHARSET.length)];
+		}
+		String name = new String(s);
+		if(usedNames.contains(name)) {
+			return getRandomString();
+		}
+		usedNames.add(name);
+		return name;
+	}
 	
 	/*
 	 * Virtual Table Name -> Virtual Column Name -> Sub Column Name -> Onion  
 	 */
 	private Map<String,Map<String,Map<String, Onion>>> schemaAnnotation = new HashMap<>();
-	private byte[] nameKey;
+	private Map<String,String> tableNames = new HashMap<>();
+	private Map<String,Map<String,String>> columnNames = new HashMap<>();
+	private Set<String> usedNames = new HashSet<>();
 	
 	public CryptoManager() {
-		nameKey = CryptoRND.generateKey();
+		
 	}
 	
 	//TODO encrypt column names
 	
 	public void addTable(String tableId, String[] columnIds) {
+		tableNames.put(tableId, getRandomString());
+		columnNames.put(tableId, new HashMap<>());
 		schemaAnnotation.put(tableId, new HashMap<>());
 		for(String columnId : columnIds) {
 			insertColumn(tableId, columnId);
@@ -44,6 +67,15 @@ public class CryptoManager {
 		col.put(String.format("%s_%d", columnId, 0), new OnionRDO());
 		col.put(String.format("%s_%d", columnId, 1), new OnionRS());
 		schemaAnnotation.get(tableId).put(columnId, col);
+		columnNames.get(tableId).put(columnId, getRandomString());
+	}
+	
+	public String getPhysicalTableName(String tableId) {
+		return tableNames.get(tableId);
+	}
+	
+	public String getPhysicalColumnName(String tableId, String columnId) {
+		return columnNames.get(tableId).get(columnId);
 	}
 	
 	/*
