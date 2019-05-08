@@ -15,6 +15,7 @@ import net.sf.jsqlparser.expression.LongValue;
 import net.sf.jsqlparser.expression.StringValue;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.schema.Column;
+import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.util.deparser.ExpressionDeParser;
 import net.sf.jsqlparser.util.deparser.SelectDeParser;
@@ -22,7 +23,7 @@ import net.sf.jsqlparser.util.deparser.StatementDeParser;
 import net.sf.jsqlparser.util.TablesNamesFinder;
 
 public class Parser {
-	private CryptoManager cmgr;
+	private static CryptoManager cmgr;
 	
 	public Parser(CryptoManager cryptoMgr) {
 		cmgr = cryptoMgr;
@@ -32,7 +33,8 @@ public class Parser {
 		
 		@Override
 		public void visit(Column col) {
-			String encryptedCol = cmgr.getPhysicalColumnName(tableId, col.getColumnName());
+			Table table = col.getTable();
+			String encryptedCol = cmgr.getPhysicalColumnName(table.getName(), col.getColumnName());
 			this.getBuffer().append(encryptedCol);
 		}
 	}
@@ -46,9 +48,8 @@ public class Parser {
 		throw new NotImplementedException();
 	}
 	
-	public static QueryPacket parseQuery(QueryPacket qp) throws JSQLParserException {
+	public QueryPacket parseQuery(QueryPacket qp) throws JSQLParserException {
 		String originalQuery = qp.getQuery();
-		CryptoManager cmgr = new CryptoManager();
 		
 		StringBuilder buffer = new StringBuilder();
 		ExpressionDeParser expr = new substituteEncryptedCols();
