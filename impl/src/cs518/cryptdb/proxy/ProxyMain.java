@@ -48,7 +48,7 @@ public class ProxyMain implements PacketHandler {
 		}
 	}
 	
-	int getPort() {
+	public int getPort() {
 		return io.getPort();
 	}
 	
