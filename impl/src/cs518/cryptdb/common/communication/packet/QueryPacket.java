@@ -16,8 +16,7 @@ public class QueryPacket extends Packet{
 	}
 	
 	public QueryPacket(String query, int tag) {
-		this();
-		this.query = query;
+		this(query);
 		this.tag = tag;
 	}
 	
@@ -43,6 +42,14 @@ public class QueryPacket extends Packet{
 	
 	static {
 		Packet.registerPacket(PACKET_ID, QueryPacket.class);
+	}
+	
+	public int getTag() {
+		return tag;
+	}
+	
+	public void setTag(int tag) {
+		this.tag = tag;
 	}
 	
 }

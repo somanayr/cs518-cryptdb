@@ -32,9 +32,9 @@ public class DatabaseMain implements PacketHandler {
 				QueryPacket qp = (QueryPacket) p;
 				String stmt = qp.getQuery();
 				if(EncryptedDatabase.isQuery(stmt)) {
-					response = new ResultPacket(EncryptedDatabase.executeQuery(stmt));
+					response = new ResultPacket(EncryptedDatabase.executeQuery(stmt), qp.getTag());
 				} else {
-					response = new StatusPacket(EncryptedDatabase.executeUpdate(stmt));
+					response = new StatusPacket(EncryptedDatabase.executeUpdate(stmt), qp.getTag());
 				}
 				io.sendPacket(p.getChildId(), response);
 			} catch (SQLException e) {
