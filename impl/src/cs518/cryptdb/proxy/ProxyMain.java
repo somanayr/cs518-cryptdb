@@ -16,13 +16,17 @@ import cs518.cryptdb.common.communication.packet.StatusPacket;
 import cs518.cryptdb.common.crypto.CryptoScheme;
 import cs518.cryptdb.database.Database;
 import cs518.cryptdb.database.EncryptedDatabase;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 public class ProxyMain implements PacketHandler {
 	
 	private PacketIO io;
+	private Parser p;
 	
 	public ProxyMain(String addr, int dbPort) throws IOException, SQLException {
 		io = new PacketIO(addr, dbPort, this); // take DatabaseMain as parent port
+		CryptoManager cm = new CryptoManager(io);
+		p = new Parser(cm);
 	}
 	
 	@Override
@@ -31,15 +35,8 @@ public class ProxyMain implements PacketHandler {
 			try {
 				Packet response;
 				QueryPacket qp = (QueryPacket) p;
-				String stmt = qp.getQuery();
-				if(Database.isQuery(stmt)) {
-					response = new ResultPacket(Database.executeQuery(stmt));
-				} else {
-					response = new StatusPacket(Database.executeUpdate(stmt));
-				}
+				p.parseQuery(qp);
 				io.sendPacket(p.getChildId(), response);
-			} catch (SQLException e) {
-				e.printStackTrace();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

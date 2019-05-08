@@ -1,5 +1,8 @@
 package cs518.cryptdb.proxy;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -7,6 +10,8 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
+import cs518.cryptdb.common.communication.PacketIO;
+import cs518.cryptdb.common.communication.packet.DeOnionPacket;
 import cs518.cryptdb.common.crypto.CryptoRND;
 import cs518.cryptdb.common.crypto.CryptoScheme;
 import cs518.cryptdb.common.crypto.Onion;
@@ -46,9 +51,10 @@ public class CryptoManager {
 	private Map<String,String> tableNames = new HashMap<>();
 	private Map<String,Map<String,String>> columnNames = new HashMap<>();
 	private Set<String> usedNames = new HashSet<>();
+	private PacketIO io;
 	
-	public CryptoManager() {
-		
+	public CryptoManager(PacketIO io) {
+		this.io = io;
 	}
 	
 	//TODO encrypt column names
@@ -72,6 +78,10 @@ public class CryptoManager {
 		col.put(String.format("%s_%d", columnId, 1), new OnionRS());
 		schemaAnnotation.get(tableId).put(columnId, col);
 		columnNames.get(tableId).put(columnId, getRandomString());
+	}
+	
+	public List<String> getAllSubcolumns(String tableId, String columnId) {
+		return new ArrayList<String>(schemaAnnotation.get(tableId).get(columnId).keySet());
 	}
 	
 	public String getPhysicalTableName(String tableId) {
@@ -128,7 +138,11 @@ public class CryptoManager {
 	}
 
 	private void sendDeOnion(List<Pair<CryptoScheme, byte[]>> l, String tableId, String columnId, String subColumnId) {
-		// TODO Auto-generated method stub
-		throw new NotImplementedException();
+		try {
+			for(Pair<CryptoScheme, byte[]> p : l)
+				io.sendPacket(PacketIO.PARENT_ID, new DeOnionPacket(p.getFirst(), p.getSecond(), tableId, subColumnId));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 }
