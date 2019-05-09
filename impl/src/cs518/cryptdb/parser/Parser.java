@@ -8,6 +8,7 @@ import java.util.Map;
 import cs518.cryptdb.common.communication.packet.Packet;
 import cs518.cryptdb.common.communication.packet.QueryPacket;
 import cs518.cryptdb.common.crypto.CryptoScheme;
+import cs518.cryptdb.common.pair.Pair;
 import cs518.cryptdb.proxy.SchemaManager;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
@@ -15,6 +16,9 @@ import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.ExpressionVisitor;
 import net.sf.jsqlparser.expression.ExpressionVisitorAdapter;
+import net.sf.jsqlparser.expression.StringValue;
+import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
+import net.sf.jsqlparser.expression.operators.relational.MultiExpressionList;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
@@ -51,6 +55,37 @@ public class Parser {
 		}
 	}
 	
+	public class encryptValues extends ExpressionDeParser {
+		protected StringBuilder buffer = new StringBuilder();
+	    private SelectVisitor selectVisitor;
+		private String tableId;
+		private String columnId;
+		private String rowId;
+		private CryptoScheme cryptoScheme;
+		private SchemaManager schemaMgr;
+		
+		public encryptValues(SelectVisitor selectVisitor, StringBuilder buffer,
+				String tableId, String rowId) {
+			this.buffer = buffer;
+			this.selectVisitor = selectVisitor;
+			this.tableId = tableId;
+			this.rowId = rowId;
+			this.cryptoScheme = new CryptoScheme("RND");
+		}
+		
+		@Override
+		public void visit(StringValue stringValue) {
+			StringBuffer temp = new StringBuffer();
+			if (stringValue.getPrefix() != null) {
+	            temp.append(stringValue.getPrefix());
+	        }
+			String op = temp.append(stringValue.getValue()).toString();
+			Pair<String, byte[]> encrypted = schemaMgr.encrypt(tableId, columnId, rowId, op.getBytes(), cryptoScheme);
+	        buffer.append("'").append(new String(encrypted.getSecond())).append("'");
+		}
+		
+	}
+	
 	// TODO: create custom SelectDeParser (implements SelectVisitor) to pass to InsertDeParser
 	public class selectOnEncrypted extends SelectDeParser {
 		
@@ -70,6 +105,7 @@ public class Parser {
 		protected StringBuilder buffer;
 	    private ExpressionVisitor expressionVisitor;
 	    private SelectVisitor selectVisitor;
+	    private String tableId;
 		
 		public insertEncrypted(ExpressionVisitor expressionVisitor, SelectVisitor selectVisitor, StringBuilder buffer) {
 			super(expressionVisitor, selectVisitor, buffer);
@@ -89,11 +125,11 @@ public class Parser {
 	        }
 	        buffer.append("INTO ");
 	        
-	        String tableId = insert.getTable().getName();
+	        tableId = insert.getTable().getName();
 	        buffer.append(schemaMgr.getPhysicalTableName(tableId));
 	        
 	        if (insert.getColumns() != null) {
-	            buffer.append(" (");
+	            buffer.append(" (ROWID ");
 	            for (Iterator<Column> iter = insert.getColumns().iterator(); iter.hasNext();) {
 	                Column column = iter.next();
 	                buffer.append(schemaMgr.getPhysicalColumnName(tableId, column.getColumnName()));
@@ -143,6 +179,40 @@ public class Parser {
 	            }
 	        }
 		}
+		
+		@Override
+	    public void visit(ExpressionList expressionList) {
+	        buffer.append(" VALUES (");
+	        buffer.append(schemaMgr.getNewRowId(tableId));
+	        buffer.append(", ");
+	        for (Iterator<Expression> iter = expressionList.getExpressions().iterator(); iter.hasNext();) {
+	            Expression expression = iter.next();
+	            expression.accept(expressionVisitor);
+	            if (iter.hasNext()) {
+	                buffer.append(", ");
+	            }
+	        }
+	        buffer.append(")");
+	    }
+		
+		@Override
+	    public void visit(MultiExpressionList multiExprList) {
+	        buffer.append(" VALUES ");
+	        for (Iterator<ExpressionList> it = multiExprList.getExprList().iterator(); it.hasNext();) {
+	            buffer.append("(" + schemaMgr.getNewRowId(tableId) + ", ");
+	            for (Iterator<Expression> iter = it.next().getExpressions().iterator(); iter.hasNext();) {
+	                Expression expression = iter.next();
+	                expression.accept(expressionVisitor);
+	                if (iter.hasNext()) {
+	                    buffer.append(", ");
+	                }
+	            }
+	            buffer.append(")");
+	            if (it.hasNext()) {
+	                buffer.append(", ");
+	            }
+	        }
+	    }
 		
 	}
 	
