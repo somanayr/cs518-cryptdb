@@ -13,6 +13,7 @@ import java.sql.Statement;
 public class Database {
 	
 	private static Connection connection; 
+	private static Statement s;
 	
 	public static void init() throws SQLException {
 		
@@ -65,9 +66,8 @@ public class Database {
 	 * @throws SQLException
 	 */
 	public static ResultSet executeQuery(String statement) throws SQLException {
-		Statement s = connection.createStatement();
+		s = connection.createStatement();
 		ResultSet ret = s.executeQuery(statement);
-		s.close();
 		return ret;
 	}
 	
@@ -78,10 +78,13 @@ public class Database {
 	 * @throws SQLException
 	 */
 	public static int executeUpdate(String statement) throws SQLException {
-		Statement s = connection.createStatement();
+		s = connection.createStatement();
 		int ret = s.executeUpdate(statement);
-		s.close();
 		return ret;
+	}
+	
+	public static void closeStatement() throws SQLException {
+		s.close();
 	}
 
 	public static Connection getConnection() {

@@ -2,10 +2,13 @@ package cs518.cryptdb.common.communication;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketAddress;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 import cs518.cryptdb.common.communication.packet.Packet;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
@@ -25,6 +28,7 @@ public class PacketIO {
 		else
 			parent = null;
 		final ServerSocket self = new ServerSocket();
+		self.bind(new InetSocketAddress("localhost", 0));
 		this.port = self.getLocalPort();
 		
 		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
@@ -52,7 +56,12 @@ public class PacketIO {
 				int childId = 0;
 				try {
 					while(true) {
-						SocketListener sl = new SocketListener(self.accept(), childId++);
+						Socket socket = self.accept();
+						if(socket == null) {
+							System.err.println("Null socket, skipping");
+							continue;
+						}
+						SocketListener sl = new SocketListener(socket, childId++);
 						new Thread(sl).start();
 					}
 				} catch (IOException e) {
@@ -61,7 +70,8 @@ public class PacketIO {
 			}
 		}).start();
 		
-		new Thread(new SocketListener(parent, PARENT_ID)).start();
+		if(parent != null)
+			new Thread(new SocketListener(parent, PARENT_ID)).start();
 	}
 	
 	private class SocketListener implements Runnable {
@@ -71,8 +81,13 @@ public class PacketIO {
 		private int childId;
 
 		public SocketListener(Socket s, int childId) {
+			if(s == null) {
+				throw new NullPointerException();
+			}
 			this.s = s;
 			this.childId = childId;
+			listeners.put(childId, this);
+			System.out.println("Registered new socket # " + childId);
 		}
 		
 		public void run() {
@@ -81,6 +96,7 @@ public class PacketIO {
 				while(!s.isClosed()) {
 					Packet p = Packet.readPacket(is);
 					p.setChildId(childId);
+					pushPacket(p);
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -89,6 +105,10 @@ public class PacketIO {
 		
 		public void send(Packet p) throws IOException {
 			p.writePacket(s.getOutputStream());
+		}
+		
+		public String toString() {
+			return "Socket to " + childId;
 		}
 	
 	}
@@ -99,6 +119,10 @@ public class PacketIO {
 	}
 	
 	public synchronized void sendPacket(int childId, Packet p) throws IOException {
+		if(!listeners.containsKey(childId)) {
+			System.out.println(listeners.toString());
+			throw new NoSuchElementException("" + childId);
+		}
 		listeners.get(childId).send(p);
 //		throw new NotImplementedException();
 		//TODO

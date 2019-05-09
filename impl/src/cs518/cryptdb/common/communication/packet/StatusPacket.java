@@ -48,6 +48,11 @@ public class StatusPacket extends Packet{
 		return new Object[] {status, tag};
 	}
 	
+	public String toString() {
+		String tagString = tag == -1 ? "" : ("(tag=" + tag + ")");
+		return String.format("StatusPacket:%s status=%d", tagString, status);
+	}
+	
 	static {
 		Packet.registerPacket(PACKET_ID, StatusPacket.class);
 	}

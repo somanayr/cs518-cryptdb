@@ -63,6 +63,26 @@ public class ResultPacket extends Packet {
 	public void setTag(int tag) {
 		this.tag = tag;
 	}
+	
+	public String toString() {
+		StringBuffer buf = new StringBuffer();
+		try {
+			CachedRowSet rs = crs;
+			while (rs.next()) {
+				String coffeeName = rs.getString("COF_NAME");
+				int supplierID = rs.getInt("SUP_ID");
+				float price = rs.getFloat("PRICE");
+				int sales = rs.getInt("SALES");
+				int total = rs.getInt("TOTAL");
+				buf.append(coffeeName + ", " + supplierID + ", " + price +
+						", " + sales + ", " + total + "\n");
+			}
+		} catch(SQLException e) {
+			e.printStackTrace();
+		}
+		String tagString = tag == -1 ? "" : ("(tag=" + tag + ")");
+		return String.format("ResultPacket:%s\n%s", tagString, buf.toString());
+	}
 
 	
 	static {

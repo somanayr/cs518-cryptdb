@@ -6,9 +6,14 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 import javax.sql.rowset.CachedRowSet;
+
+import com.sun.rowset.CachedRowSetImpl;
 
 import cs518.cryptdb.common.crypto.CryptoScheme;
 
@@ -30,10 +35,24 @@ public abstract class Serializer<C> {
 		}
 	}
 	
+	private static List<Class<?>> getAllParentClasses(Class<?> c) {
+		ArrayList<Class<?>> al = new ArrayList<>();
+		al.addAll(Arrays.asList(c.getInterfaces()));
+		while((c = c.getSuperclass()) != null)
+			al.add(c);
+		return al;
+	}
+	
 	public static <T> byte[] toBytes(T o) {
 		Serializer<T> s = (Serializer<T>) serializers.get(o.getClass());
 		if(s == null) {
-			throw new UnsupportedOperationException("No known serializer for type " + o.getClass());
+			for (Class<?> c : getAllParentClasses(o.getClass())) {
+				s = (Serializer<T>) serializers.get(c);
+				if(s != null)
+					break;
+			}
+			if(s == null)
+				throw new UnsupportedOperationException("No known serializer for type " + o.getClass());
 		}
 		return s.serialize(o);
 	}
@@ -142,7 +161,7 @@ public abstract class Serializer<C> {
 	}
 
 	public static int toInt(byte[] intB) {
-		return IntegerSerializer.toInt(intB);
+		return ByteBuffer.wrap(intB).getInt();
 	}
 	
 }
