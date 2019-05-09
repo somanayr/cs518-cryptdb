@@ -16,6 +16,7 @@ import cs518.cryptdb.common.communication.packet.StatusPacket;
 import cs518.cryptdb.common.crypto.CryptoScheme;
 import cs518.cryptdb.database.Database;
 import cs518.cryptdb.database.EncryptedDatabase;
+import cs518.cryptdb.parser.Parser;
 import net.sf.jsqlparser.JSQLParserException;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
