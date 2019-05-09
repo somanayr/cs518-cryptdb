@@ -1,4 +1,4 @@
-package cs518.cryptdb.proxy;
+package cs518.cryptdb.parser;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -12,6 +12,7 @@ import cs518.cryptdb.proxy.SchemaManager;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import net.sf.jsqlparser.JSQLParserException;
+import net.sf.jsqlparser.expression.ExpressionVisitor;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
@@ -19,10 +20,13 @@ import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.create.table.ColumnDefinition;
 import net.sf.jsqlparser.statement.create.table.CreateTable;
 import net.sf.jsqlparser.statement.create.table.Index;
+import net.sf.jsqlparser.statement.insert.Insert;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.Select;
+import net.sf.jsqlparser.statement.select.SelectVisitor;
 import net.sf.jsqlparser.util.deparser.CreateTableDeParser;
 import net.sf.jsqlparser.util.deparser.ExpressionDeParser;
+import net.sf.jsqlparser.util.deparser.InsertDeParser;
 import net.sf.jsqlparser.util.deparser.SelectDeParser;
 import net.sf.jsqlparser.util.deparser.StatementDeParser;
 import net.sf.jsqlparser.util.TablesNamesFinder;
@@ -42,6 +46,48 @@ public class Parser {
 			String encryptedCol = schemaMgr.getPhysicalColumnName(table.getName(), col.getColumnName());
 			this.getBuffer().append(encryptedCol);
 		}
+	}
+	
+	public class insertEncrypted extends InsertDeParser {
+		
+		protected StringBuilder buffer;
+	    private ExpressionVisitor expressionVisitor;
+	    private SelectVisitor selectVisitor;
+		
+		public insertEncrypted(ExpressionVisitor expressionVisitor, SelectVisitor selectVisitor, StringBuilder buffer) {
+			super(expressionVisitor, selectVisitor, buffer);
+			this.buffer = buffer;
+	        this.expressionVisitor = expressionVisitor;
+	        this.selectVisitor = selectVisitor;
+		}
+		
+		@Override
+		public void deParse(Insert insert) {
+	        buffer.append("INSERT ");
+	        if (insert.getModifierPriority() != null) {
+	            buffer.append(insert.getModifierPriority()).append(" ");
+	        }
+	        if (insert.isModifierIgnore()) {
+	            buffer.append("IGNORE ");
+	        }
+	        buffer.append("INTO ");
+	        
+	        String tableId = insert.getTable().getName();
+	        buffer.append(schemaMgr.getPhysicalTableName(tableId));
+	        
+	        if (insert.getColumns() != null) {
+	            buffer.append(" (");
+	            for (Iterator<Column> iter = insert.getColumns().iterator(); iter.hasNext();) {
+	                Column column = iter.next();
+	                buffer.append(schemaMgr.getPhysicalColumnName(tableId, column.getColumnName()));
+	                if (iter.hasNext()) {
+	                    buffer.append(", ");
+	                }
+	            }
+	            buffer.append(")");
+	        }
+		}
+		
 	}
 	
 	public class createEncryptedTable extends CreateTableDeParser {
@@ -142,7 +188,7 @@ public class Parser {
 		throw new NotImplementedException();
 	}
 	
-	public QueryPacket parseQuery(QueryPacket qp) throws JSQLParserException {
+	public QueryPacket parseQuery(QueryPacket qp) throws JSQLParserException { // TODO: rewrite with new DeParsers
 		String originalQuery = qp.getQuery();
 		
 		StringBuilder buffer = new StringBuilder();
