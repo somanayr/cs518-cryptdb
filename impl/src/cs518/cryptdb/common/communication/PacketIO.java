@@ -15,7 +15,7 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 public class PacketIO {
 	public static final int PARENT_ID = -1;
-	private static Map<Integer, SocketListener> listeners = new HashMap<>();
+	private Map<Integer, SocketListener> listeners = new HashMap<>();
 	private PacketHandler packetHandler;
 	private int port;
 	

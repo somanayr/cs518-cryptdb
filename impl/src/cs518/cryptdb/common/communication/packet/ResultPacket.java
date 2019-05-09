@@ -1,13 +1,20 @@
 package cs518.cryptdb.common.communication.packet;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 
 import javax.sql.rowset.CachedRowSet;
+import javax.sql.rowset.RowSetMetaDataImpl;
 import javax.sql.rowset.RowSetProvider;
+
+import cs518.cryptdb.common.Util;
+import cs518.cryptdb.common.crypto.CryptoScheme;
+import cs518.cryptdb.proxy.SchemaManager;
 
 public class ResultPacket extends Packet {
 	public static final int PACKET_ID = Packet.RESULT_PACKET_ID;
@@ -68,14 +75,19 @@ public class ResultPacket extends Packet {
 		StringBuffer buf = new StringBuffer();
 		try {
 			CachedRowSet rs = crs;
+			for(int i = 0; i < rs.getMetaData().getColumnCount(); i++) {
+				if(i != 0)
+					buf.append(",");
+				buf.append(rs.getMetaData().getColumnName(i+1));
+			}
+			buf.append('\n');
 			while (rs.next()) {
-				String coffeeName = rs.getString("COF_NAME");
-				int supplierID = rs.getInt("SUP_ID");
-				float price = rs.getFloat("PRICE");
-				int sales = rs.getInt("SALES");
-				int total = rs.getInt("TOTAL");
-				buf.append(coffeeName + ", " + supplierID + ", " + price +
-						", " + sales + ", " + total + "\n");
+				for(int i = 0; i < rs.getMetaData().getColumnCount(); i++) {
+					if(i != 0)
+						buf.append(",");
+					buf.append(rs.getString(i+1));
+				}
+				buf.append('\n');
 			}
 		} catch(SQLException e) {
 			e.printStackTrace();
@@ -84,9 +96,45 @@ public class ResultPacket extends Packet {
 		return String.format("ResultPacket:%s\n%s", tagString, buf.toString());
 	}
 
+	public void decryptSelf(SchemaManager sm) throws SQLException, IOException {
+		while(crs.next()) {
+			String rowId = crs.getString("ROWID");
+			for(int i = 0; i < crs.getMetaData().getColumnCount(); i++) {
+				String pTable = crs.getMetaData().getTableName(i+1);
+				String tableId = sm.getTableNameFromPhysical(pTable);
+				String pCol = crs.getMetaData().getColumnName(i+1);
+				if(pCol == "ROWID") 
+					continue;
+				String columnId = sm.getSubcolumnNameFromPhysical(pCol);
+				byte[] oldVal = Util.toByteArray(crs.getBinaryStream(i+1));
+				byte[] newVal = sm.decrypt(tableId, columnId, rowId, oldVal);
+				crs.updateBinaryStream(pCol, new ByteArrayInputStream(newVal));
+			}
+		}
+		
+		RowSetMetaDataImpl rsmdi = (RowSetMetaDataImpl)crs.getMetaData();
+		for(int i = 0; i < crs.getMetaData().getColumnCount(); i++) {
+			String pTable = crs.getMetaData().getTableName(i+1);
+			String tableId = sm.getTableNameFromPhysical(pTable);
+			String pCol = crs.getMetaData().getColumnName(i+1);
+			if(pCol == "ROWID") 
+				continue;
+			String columnId = sm.getSubcolumnNameFromPhysical(pCol);
+			
+			rsmdi.setTableName(i+1, tableId);
+			rsmdi.setColumnName(i+1, columnId);
+		}
+		
+		CachedRowSet newCrs = RowSetProvider.newFactory().createCachedRowSet();
+		newCrs.populate(crs);
+		crs = newCrs;
+	}
+
 	
 	static {
 		Packet.registerPacket(PACKET_ID, ResultPacket.class);
 	}
+	
+	
 
 }

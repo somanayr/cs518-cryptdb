@@ -14,10 +14,12 @@ public class FullTest {
 	}
 	
 	public static void directTest() throws Exception {
-
+		System.out.println("Setting up DB");
 		DatabaseMain dbm = new DatabaseMain();
 		int dbPort = dbm.getPort();
+		System.out.println("Setting up App");
 		ApplicationMain am = new ApplicationMain("localhost", dbPort);
+		System.out.println("Running App");
 		runApplication(am);
 	}
 	

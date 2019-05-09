@@ -24,11 +24,12 @@ public class ProxyMain implements PacketHandler {
 	
 	private PacketIO io;
 	private Parser parser;
+	private SchemaManager manager;
 	
 	public ProxyMain(String addr, int dbPort) throws IOException, SQLException {
 		io = new PacketIO(addr, dbPort, this); // take DatabaseMain as parent port
-		SchemaManager cm = new SchemaManager(io);
-		parser = new Parser(cm);
+		manager = new SchemaManager(io);
+		parser = new Parser(manager);
 	}
 	
 	@Override
@@ -51,8 +52,14 @@ public class ProxyMain implements PacketHandler {
 				((StatusPacket)p).setTag(-1);
 			}
 			else {
-				tag = ((ResultPacket)p).getTag();
-				((ResultPacket)p).setTag(-1);
+				ResultPacket rs = (ResultPacket)p;
+				tag = rs.getTag();
+				rs.setTag(-1);
+				try {
+					rs.decryptSelf(manager);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
 			if (tag == -1) {
 				System.err.println("Unidentifier child: " + tag + " packet: " + p);

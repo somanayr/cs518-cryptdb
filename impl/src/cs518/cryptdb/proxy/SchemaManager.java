@@ -50,8 +50,10 @@ public class SchemaManager {
 	 */
 	private Map<String,Map<String,Map<String, Onion>>> schemaAnnotation = new HashMap<>();
 	private Map<String,String> tableNames = new HashMap<>();
+	private Map<String,String> tableNamesBack = new HashMap<>();
 	private Map<String,Integer> newRowNames = new HashMap<>();
 	private Map<String,Map<String,String>> columnNames = new HashMap<>();
+	private Map<String,String> columnNamesBack = new HashMap<>();
 	private Set<String> usedNames = new HashSet<>();
 	private PacketIO io;
 	
@@ -64,7 +66,11 @@ public class SchemaManager {
 	public List<String> addTable(String tableId, String[] columnIds) {
 		if(tableNames.containsKey(tableId))
 			throw new IllegalArgumentException("Table ID already registered: " + tableId);
-		tableNames.put(tableId, getRandomString());
+		String pName = getRandomString();
+		while(tableNamesBack.containsKey(pName))
+			pName = getRandomString();
+		tableNames.put(tableId, pName);
+		tableNamesBack.put(pName, tableId);
 		newRowNames.put(tableId, 0);
 		columnNames.put(tableId, new HashMap<>());
 		schemaAnnotation.put(tableId, new LinkedHashMap<>());
@@ -83,8 +89,14 @@ public class SchemaManager {
 		col.put(String.format("%s_%d", columnId, 1), new OnionRS());
 		schemaAnnotation.get(tableId).put(columnId, col);
 		columnNames.get(tableId).put(columnId, getRandomString());
-		columnNames.get(tableId).put(String.format("%s_%d", columnId, 0), getRandomString());
-		columnNames.get(tableId).put(String.format("%s_%d", columnId, 1), getRandomString());
+		for(int i = 0; i < 2; i++) {
+			
+			String pName = getRandomString();
+			while(columnNamesBack.containsKey(pName))
+				pName = getRandomString();
+			columnNames.get(tableId).put(String.format("%s_%d", columnId, i), pName);
+			columnNamesBack.put(pName, String.format("%s_%d", columnId, i));
+		}
 		List<String> ret = new ArrayList<>();
 		ret.add(String.format("%s_%d", columnId, 0));
 		ret.add(String.format("%s_%d", columnId, 1));
@@ -113,6 +125,14 @@ public class SchemaManager {
 	
 	public String getPhysicalColumnName(String tableId, String columnId) {
 		return columnNames.get(tableId).get(columnId);
+	}
+	
+	public String getSubcolumnNameFromPhysical(String columnName) {
+		return columnNamesBack.get(columnName);
+	}
+	
+	public String getTableNameFromPhysical(String tableName) {
+		return tableNamesBack.get(tableName);
 	}
 	
 	/*
