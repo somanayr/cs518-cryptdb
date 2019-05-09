@@ -14,6 +14,7 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.ExpressionVisitor;
+import net.sf.jsqlparser.expression.ExpressionVisitorAdapter;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
@@ -48,6 +49,20 @@ public class Parser {
 			String encryptedCol = schemaMgr.getPhysicalColumnName(table.getName(), col.getColumnName());
 			this.getBuffer().append(encryptedCol);
 		}
+	}
+	
+	// TODO: create custom SelectDeParser (implements SelectVisitor) to pass to InsertDeParser
+	public class selectOnEncrypted extends SelectDeParser {
+		
+		protected StringBuilder buffer = new StringBuilder();
+	    private ExpressionVisitor expressionVisitor = new ExpressionVisitorAdapter();
+	    
+	    public selectOnEncrypted(ExpressionVisitor expressionVisitor, StringBuilder buffer) {
+	        this.buffer = buffer;
+	        this.expressionVisitor = expressionVisitor;
+	    }
+	    
+	    
 	}
 	
 	public class insertEncrypted extends InsertDeParser {
@@ -89,7 +104,7 @@ public class Parser {
 	            buffer.append(")");
 	        }
 	        
-	        // TODO: modify to extract and encrypt values
+	        // TODO: modify to extract and encrypt values. should do this already, given the right inputs
 	        if (insert.getItemsList() != null) {
 	            insert.getItemsList().accept(this);
 	        }
