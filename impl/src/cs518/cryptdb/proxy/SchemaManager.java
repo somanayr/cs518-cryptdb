@@ -50,6 +50,7 @@ public class SchemaManager {
 	 */
 	private Map<String,Map<String,Map<String, Onion>>> schemaAnnotation = new HashMap<>();
 	private Map<String,String> tableNames = new HashMap<>();
+	private Map<String,Integer> newRowNames = new HashMap<>();
 	private Map<String,Map<String,String>> columnNames = new HashMap<>();
 	private Set<String> usedNames = new HashSet<>();
 	private PacketIO io;
@@ -64,6 +65,7 @@ public class SchemaManager {
 		if(tableNames.containsKey(tableId))
 			throw new IllegalArgumentException("Table ID already registered: " + tableId);
 		tableNames.put(tableId, getRandomString());
+		newRowNames.put(tableId, 0);
 		columnNames.put(tableId, new HashMap<>());
 		schemaAnnotation.put(tableId, new LinkedHashMap<>());
 		List<String> ret = new ArrayList<>();
@@ -165,5 +167,13 @@ public class SchemaManager {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+
+	
+	public String getNewRowId(String tableName) {
+		int id = newRowNames.get(tableName);
+		newRowNames.put(tableName, id+1);
+		return "" + id;
 	}
 }

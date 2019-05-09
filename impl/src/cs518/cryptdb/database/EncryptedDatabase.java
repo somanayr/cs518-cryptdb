@@ -55,6 +55,5 @@ public class EncryptedDatabase {
 		} catch (IOException e){
 			e.printStackTrace();
 		}
-		
 	}
 }
