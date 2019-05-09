@@ -106,7 +106,7 @@ public class Parser {
 	                    ColumnDefinition columnDefinition = iter.next();
 	                    buffer.append(schemaMgr.getPhysicalColumnName(tblName, columnDefinition.getColumnName()));
 	                    buffer.append(" ");
-	                    buffer.append(columnDefinition.getColDataType().toString());
+	                    buffer.append("VARBINARY(1000000)"); // because we're using H2 and storing everything as byte[]
 	                    if (columnDefinition.getColumnSpecStrings() != null) {
 	                        for (String s : columnDefinition.getColumnSpecStrings()) {
 	                            buffer.append(" ");
