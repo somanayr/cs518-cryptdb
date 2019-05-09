@@ -42,6 +42,10 @@ public class EncryptedDatabase {
 		return Database.getConnection();
 	}
 	
+	public static void closeStatement() throws SQLException {
+		Database.closeStatement();
+	}
+	
 	public static void deOnion(CryptoScheme scheme, byte[] key, String tableId, String columnId) {
 		try {
 			ResultSet rs = executeQuery(String.format("SELECT ROWID, %s FROM %s;", columnId, tableId));

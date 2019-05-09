@@ -18,6 +18,8 @@ public abstract class Packet {
 	public static final int STATUS_PACKET_ID = 3;
 	public static final int DEONION_PACKET_ID = 4;
 	
+	private static final byte INT_LENGTH = 4;
+	
 	
 	private static Map<Integer,Class<? extends Packet>> packets = new HashMap<>();
 	
@@ -63,7 +65,6 @@ public abstract class Packet {
 		return p;
 	}
 
-	private static byte INT_LENGTH;
 	private int packetId; 
 	
 	public byte[] serialize() {
@@ -96,7 +97,14 @@ public abstract class Packet {
 		for (int i = 0; i < classes.length; i++) {
 			ret[i] = Serializer.toObject(incoming[i], classes[i]);
 		}
-		this.setContents(incoming);
+		try {
+			this.setContents(ret);
+		} catch(ClassCastException e) {
+			for (int i = 0; i < classes.length; i++) {
+				System.err.println(ret[i].getClass());
+			}
+			throw e;
+		}
 	}
 	
 	public final int getPacketId() {

@@ -26,6 +26,7 @@ public class DatabaseMain implements PacketHandler {
 
 	@Override
 	public void handlePacket(Packet p) {
+		System.out.println("Got database packet " + p);
 		if(p instanceof QueryPacket) {
 			try {
 				Packet response;
@@ -36,6 +37,7 @@ public class DatabaseMain implements PacketHandler {
 				} else {
 					response = new StatusPacket(EncryptedDatabase.executeUpdate(stmt), qp.getTag());
 				}
+				EncryptedDatabase.closeStatement();
 				io.sendPacket(p.getChildId(), response);
 			} catch (SQLException e) {
 				e.printStackTrace();
@@ -52,17 +54,6 @@ public class DatabaseMain implements PacketHandler {
 	
 	public int getPort() {
 		return io.getPort();
-	}
-	
-	public static void main(String[] args) {
-		try {
-			new DatabaseMain();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 	}
 
 }
