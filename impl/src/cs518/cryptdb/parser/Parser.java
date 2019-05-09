@@ -178,6 +178,7 @@ public class Parser {
 	        List<String> colIds = new ArrayList<String>();
 	        
 	        if (colDefs != null) {
+	        	colIds.add("ROWID");
 	        	for (ColumnDefinition colDef : colDefs) {
 	        		colIds.add(colDef.getColumnName());
 	        	}
@@ -202,7 +203,7 @@ public class Parser {
 	            }
 	        } else {
 	            if (createTable.getColumnDefinitions() != null) {
-	                buffer.append(" (");
+	                buffer.append(" ( ROWID INT, ");
 	                for (Iterator<ColumnDefinition> iter = createTable.getColumnDefinitions().iterator(); iter.
 	                        hasNext();) {
 	                    ColumnDefinition columnDefinition = iter.next();
