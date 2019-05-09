@@ -70,7 +70,7 @@ public class Parser {
 			this.selectVisitor = selectVisitor;
 			this.tableId = tableId;
 			this.rowId = rowId;
-			this.cryptoScheme = new CryptoScheme("RND");
+			this.cryptoScheme = CryptoScheme.DET;
 		}
 		
 		@Override
