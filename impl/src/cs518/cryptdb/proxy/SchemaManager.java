@@ -60,18 +60,20 @@ public class SchemaManager {
 	
 	//TODO encrypt column names
 	
-	public void addTable(String tableId, String[] columnIds) {
+	public List<String> addTable(String tableId, String[] columnIds) {
 		if(tableNames.containsKey(tableId))
 			throw new IllegalArgumentException("Table ID already registered: " + tableId);
 		tableNames.put(tableId, getRandomString());
 		columnNames.put(tableId, new HashMap<>());
 		schemaAnnotation.put(tableId, new LinkedHashMap<>());
+		List<String> ret = new ArrayList<>();
 		for(String columnId : columnIds) {
-			insertColumn(tableId, columnId);
+			ret.addAll(insertColumn(tableId, columnId));
 		}
+		return ret;
 	}
 	
-	public void insertColumn(String tableId, String columnId) {
+	public List<String> insertColumn(String tableId, String columnId) {
 		if(columnNames.get(tableId).containsKey(columnId))
 			throw new IllegalArgumentException("Column ID already registered: " + tableId + " : " + columnId);
 		Map<String, Onion> col = new LinkedHashMap<>();
@@ -79,6 +81,12 @@ public class SchemaManager {
 		col.put(String.format("%s_%d", columnId, 1), new OnionRS());
 		schemaAnnotation.get(tableId).put(columnId, col);
 		columnNames.get(tableId).put(columnId, getRandomString());
+		columnNames.get(tableId).put(String.format("%s_%d", columnId, 0), getRandomString());
+		columnNames.get(tableId).put(String.format("%s_%d", columnId, 1), getRandomString());
+		List<String> ret = new ArrayList<>();
+		ret.add(String.format("%s_%d", columnId, 0));
+		ret.add(String.format("%s_%d", columnId, 1));
+		return ret;
 	}
 	
 	/**
