@@ -1,14 +1,12 @@
 package cs518.cryptdb.database;
 
-import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 
+import cs518.cryptdb.common.Util;
 import cs518.cryptdb.common.crypto.CryptoScheme;
 
 public class EncryptedDatabase {
@@ -48,11 +46,13 @@ public class EncryptedDatabase {
 		try {
 			ResultSet rs = executeQuery(String.format("SELECT ROWID, %s FROM %s;", columnId, tableId));
 			while(rs.next()) {
-				byte[] oldVal = rs.getBytes(columnId);
+				byte[] oldVal = Util.toByteArray(rs.getBinaryStream(columnId));
 				byte[] newVal = CryptoScheme.decrypt(scheme, key, tableId, columnId, rs.getRowId(columnId).toString(), oldVal);
-				rs.updateBytes(columnId, newVal);
+				rs.updateBinaryStream(columnId, new ByteArrayInputStream(newVal));
 			}
 		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (IOException e){
 			e.printStackTrace();
 		}
 		
