@@ -12,6 +12,7 @@ import cs518.cryptdb.proxy.SchemaManager;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import net.sf.jsqlparser.JSQLParserException;
+import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.ExpressionVisitor;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.schema.Column;
@@ -24,6 +25,7 @@ import net.sf.jsqlparser.statement.insert.Insert;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.Select;
 import net.sf.jsqlparser.statement.select.SelectVisitor;
+import net.sf.jsqlparser.statement.select.WithItem;
 import net.sf.jsqlparser.util.deparser.CreateTableDeParser;
 import net.sf.jsqlparser.util.deparser.ExpressionDeParser;
 import net.sf.jsqlparser.util.deparser.InsertDeParser;
@@ -85,6 +87,45 @@ public class Parser {
 	                }
 	            }
 	            buffer.append(")");
+	        }
+	        
+	        // TODO: modify to extract and encrypt values
+	        if (insert.getItemsList() != null) {
+	            insert.getItemsList().accept(this);
+	        }
+
+	        if (insert.getSelect() != null) {
+	            buffer.append(" ");
+	            if (insert.isUseSelectBrackets()) {
+	                buffer.append("(");
+	            }
+	            if (insert.getSelect().getWithItemsList() != null) {
+	                buffer.append("WITH ");
+	                for (WithItem with : insert.getSelect().getWithItemsList()) {
+	                    with.accept(selectVisitor);
+	                }
+	                buffer.append(" ");
+	            }
+	            insert.getSelect().getSelectBody().accept(selectVisitor);
+	            if (insert.isUseSelectBrackets()) {
+	                buffer.append(")");
+	            }
+	        }
+
+	        if (insert.isUseSet()) {
+	            buffer.append(" SET ");
+	            for (int i = 0; i < insert.getSetColumns().size(); i++) {
+	                Column column = insert.getSetColumns().get(i);
+	                column.accept(expressionVisitor);
+
+	                buffer.append(" = ");
+
+	                Expression expression = insert.getSetExpressionList().get(i);
+	                expression.accept(expressionVisitor);
+	                if (i < insert.getSetColumns().size() - 1) {
+	                    buffer.append(", ");
+	                }
+	            }
 	        }
 		}
 		
