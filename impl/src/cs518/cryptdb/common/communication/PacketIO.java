@@ -28,7 +28,7 @@ public class PacketIO {
 		else
 			parent = null;
 		final ServerSocket self = new ServerSocket();
-		self.bind(new InetSocketAddress("localhost", 0));
+		self.bind(null);
 		this.port = self.getLocalPort();
 		
 		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {

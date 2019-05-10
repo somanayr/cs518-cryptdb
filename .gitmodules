@@ -4,3 +4,6 @@
 [submodule "JSqlParser"]
 	path = JSqlParser
 	url = https://github.com/JSQLParser/JSqlParser.git
+[submodule "test_db"]
+	path = test_db
+	url = https://github.com/datacharmer/test_db.git
