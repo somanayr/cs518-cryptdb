@@ -3,6 +3,7 @@ package cs518.cryptdb.parser;
 import java.util.Iterator;
 
 import cs518.cryptdb.proxy.SchemaManager;
+
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.ExpressionVisitor;
 import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
