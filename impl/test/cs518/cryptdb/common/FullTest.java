@@ -4,6 +4,7 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 
 import cs518.cryptdb.application.ApplicationMain;
+import cs518.cryptdb.application.SQLSequenceReader;
 import cs518.cryptdb.database.DatabaseMain;
 import cs518.cryptdb.proxy.ProxyMain;
 
@@ -20,7 +21,8 @@ public class FullTest {
 		System.out.println("Setting up App");
 		ApplicationMain am = new ApplicationMain("localhost", dbPort);
 		System.out.println("Running App");
-		runApplication(am);
+		SQLSequenceReader.runApplication("../test_db/employees.sql", am);
+		//runApplication(am);
 	}
 	
 	public static void proxyTest() throws Exception {
