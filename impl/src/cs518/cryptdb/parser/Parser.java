@@ -29,16 +29,6 @@ public class Parser {
 		schemaMgr = cryptoMgr;
 	}
 	
-	static class substituteEncryptedCols extends ExpressionDeParser {
-		
-		@Override
-		public void visit(Column col) {
-			Table table = col.getTable();
-			String encryptedCol = schemaMgr.getPhysicalColumnName(table.getName(), col.getColumnName());
-			this.getBuffer().append(encryptedCol);
-		}
-	}
-	
 	// TODO: create custom SelectDeParser (implements SelectVisitor) to pass to InsertDeParser
 	public class selectOnEncrypted extends SelectDeParser {
 		
@@ -65,7 +55,7 @@ public class Parser {
 		String originalQuery = qp.getQuery();
 		
 		StringBuilder buffer = new StringBuilder();
-		ExpressionDeParser expr = new substituteEncryptedCols();
+		ExpressionDeParser expr = new EncryptExpression();
 		TablesNamesFinder tnf = new TablesNamesFinder();
 		
 		SelectDeParser selectDeparser = new SelectDeParser(expr, buffer);
