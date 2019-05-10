@@ -1,39 +1,23 @@
 package cs518.cryptdb.parser;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import cs518.cryptdb.common.communication.packet.Packet;
 import cs518.cryptdb.common.communication.packet.QueryPacket;
 import cs518.cryptdb.common.crypto.CryptoScheme;
-import cs518.cryptdb.common.pair.Pair;
 import cs518.cryptdb.proxy.SchemaManager;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import net.sf.jsqlparser.JSQLParserException;
-import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.ExpressionVisitor;
 import net.sf.jsqlparser.expression.ExpressionVisitorAdapter;
-import net.sf.jsqlparser.expression.StringValue;
-import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
-import net.sf.jsqlparser.expression.operators.relational.MultiExpressionList;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.Statement;
-import net.sf.jsqlparser.statement.create.table.ColumnDefinition;
-import net.sf.jsqlparser.statement.create.table.CreateTable;
-import net.sf.jsqlparser.statement.create.table.Index;
-import net.sf.jsqlparser.statement.insert.Insert;
-import net.sf.jsqlparser.statement.select.PlainSelect;
-import net.sf.jsqlparser.statement.select.Select;
-import net.sf.jsqlparser.statement.select.SelectVisitor;
-import net.sf.jsqlparser.statement.select.WithItem;
-import net.sf.jsqlparser.util.deparser.CreateTableDeParser;
 import net.sf.jsqlparser.util.deparser.ExpressionDeParser;
-import net.sf.jsqlparser.util.deparser.InsertDeParser;
 import net.sf.jsqlparser.util.deparser.SelectDeParser;
 import net.sf.jsqlparser.util.deparser.StatementDeParser;
 import net.sf.jsqlparser.util.TablesNamesFinder;
@@ -43,47 +27,6 @@ public class Parser {
 	
 	public Parser(SchemaManager cryptoMgr) {
 		schemaMgr = cryptoMgr;
-	}
-	
-	static class substituteEncryptedCols extends ExpressionDeParser {
-		
-		@Override
-		public void visit(Column col) {
-			Table table = col.getTable();
-			String encryptedCol = schemaMgr.getPhysicalColumnName(table.getName(), col.getColumnName());
-			this.getBuffer().append(encryptedCol);
-		}
-	}
-	
-	public class encryptValues extends ExpressionDeParser {
-		protected StringBuilder buffer = new StringBuilder();
-	    private SelectVisitor selectVisitor;
-		private String tableId;
-		private String columnId;
-		private String rowId;
-		private CryptoScheme cryptoScheme;
-		private SchemaManager schemaMgr;
-		
-		public encryptValues(SelectVisitor selectVisitor, StringBuilder buffer,
-				String tableId, String rowId) {
-			this.buffer = buffer;
-			this.selectVisitor = selectVisitor;
-			this.tableId = tableId;
-			this.rowId = rowId;
-			this.cryptoScheme = CryptoScheme.DET;
-		}
-		
-		@Override
-		public void visit(StringValue stringValue) {
-			StringBuffer temp = new StringBuffer();
-			if (stringValue.getPrefix() != null) {
-	            temp.append(stringValue.getPrefix());
-	        }
-			String op = temp.append(stringValue.getValue()).toString();
-			Pair<String, byte[]> encrypted = schemaMgr.encrypt(tableId, columnId, rowId, op.getBytes(), cryptoScheme);
-	        buffer.append("'").append(new String(encrypted.getSecond())).append("'");
-		}
-		
 	}
 	
 	// TODO: create custom SelectDeParser (implements SelectVisitor) to pass to InsertDeParser
@@ -96,214 +39,7 @@ public class Parser {
 	        this.buffer = buffer;
 	        this.expressionVisitor = expressionVisitor;
 	    }
-	    
-	    
-	}
-	
-	public class insertEncrypted extends InsertDeParser {
-		
-		protected StringBuilder buffer;
-	    private ExpressionVisitor expressionVisitor;
-	    private SelectVisitor selectVisitor;
-	    private String tableId;
-		
-		public insertEncrypted(ExpressionVisitor expressionVisitor, SelectVisitor selectVisitor, StringBuilder buffer) {
-			super(expressionVisitor, selectVisitor, buffer);
-			this.buffer = buffer;
-	        this.expressionVisitor = expressionVisitor;
-	        this.selectVisitor = selectVisitor;
-		}
-		
-		@Override
-		public void deParse(Insert insert) {
-	        buffer.append("INSERT ");
-	        if (insert.getModifierPriority() != null) {
-	            buffer.append(insert.getModifierPriority()).append(" ");
-	        }
-	        if (insert.isModifierIgnore()) {
-	            buffer.append("IGNORE ");
-	        }
-	        buffer.append("INTO ");
-	        
-	        tableId = insert.getTable().getName();
-	        buffer.append(schemaMgr.getPhysicalTableName(tableId));
-	        
-	        if (insert.getColumns() != null) {
-	            buffer.append(" (ROWID ");
-	            for (Iterator<Column> iter = insert.getColumns().iterator(); iter.hasNext();) {
-	                Column column = iter.next();
-	                buffer.append(schemaMgr.getPhysicalColumnName(tableId, column.getColumnName()));
-	                if (iter.hasNext()) {
-	                    buffer.append(", ");
-	                }
-	            }
-	            buffer.append(")");
-	        }
-	        
-	        // TODO: modify to extract and encrypt values. should do this already, given the right inputs
-	        if (insert.getItemsList() != null) {
-	            insert.getItemsList().accept(this);
-	        }
-
-	        if (insert.getSelect() != null) {
-	            buffer.append(" ");
-	            if (insert.isUseSelectBrackets()) {
-	                buffer.append("(");
-	            }
-	            if (insert.getSelect().getWithItemsList() != null) {
-	                buffer.append("WITH ");
-	                for (WithItem with : insert.getSelect().getWithItemsList()) {
-	                    with.accept(selectVisitor);
-	                }
-	                buffer.append(" ");
-	            }
-	            insert.getSelect().getSelectBody().accept(selectVisitor);
-	            if (insert.isUseSelectBrackets()) {
-	                buffer.append(")");
-	            }
-	        }
-
-	        if (insert.isUseSet()) {
-	            buffer.append(" SET ");
-	            for (int i = 0; i < insert.getSetColumns().size(); i++) {
-	                Column column = insert.getSetColumns().get(i);
-	                column.accept(expressionVisitor);
-
-	                buffer.append(" = ");
-
-	                Expression expression = insert.getSetExpressionList().get(i);
-	                expression.accept(expressionVisitor);
-	                if (i < insert.getSetColumns().size() - 1) {
-	                    buffer.append(", ");
-	                }
-	            }
-	        }
-		}
-		
-		@Override
-	    public void visit(ExpressionList expressionList) {
-	        buffer.append(" VALUES (");
-	        buffer.append(schemaMgr.getNewRowId(tableId));
-	        buffer.append(", ");
-	        for (Iterator<Expression> iter = expressionList.getExpressions().iterator(); iter.hasNext();) {
-	            Expression expression = iter.next();
-	            expression.accept(expressionVisitor);
-	            if (iter.hasNext()) {
-	                buffer.append(", ");
-	            }
-	        }
-	        buffer.append(")");
-	    }
-		
-		@Override
-	    public void visit(MultiExpressionList multiExprList) {
-	        buffer.append(" VALUES ");
-	        for (Iterator<ExpressionList> it = multiExprList.getExprList().iterator(); it.hasNext();) {
-	            buffer.append("(" + schemaMgr.getNewRowId(tableId) + ", ");
-	            for (Iterator<Expression> iter = it.next().getExpressions().iterator(); iter.hasNext();) {
-	                Expression expression = iter.next();
-	                expression.accept(expressionVisitor);
-	                if (iter.hasNext()) {
-	                    buffer.append(", ");
-	                }
-	            }
-	            buffer.append(")");
-	            if (it.hasNext()) {
-	                buffer.append(", ");
-	            }
-	        }
-	    }
-		
-	}
-	
-	public class createEncryptedTable extends CreateTableDeParser {
-		
-		private StatementDeParser statementDeParser;
-		
-		public createEncryptedTable(StatementDeParser statementDeParser, StringBuilder buffer) {
-			super(statementDeParser, buffer);
-			this.statementDeParser = statementDeParser;
-		}
-
-		@Override
-		public void deParse(CreateTable createTable) {
-			buffer.append("CREATE ");
-			if (createTable.isUnlogged()) {
-	            buffer.append("UNLOGGED ");
-	        }
-			String params = PlainSelect.
-	                getStringList(createTable.getCreateOptionsStrings(), false, false);
-	        if (!"".equals(params)) {
-	            buffer.append(params).append(' ');
-	        }
-
-	        buffer.append("TABLE ");
-	        if (createTable.isIfNotExists()) {
-	            buffer.append("IF NOT EXISTS ");
-	        }
-	        
-	        // encrypt table and column names to complete query parsing
-	        String tblName = createTable.getTable().getFullyQualifiedName();
-	        List<ColumnDefinition> colDefs = createTable.getColumnDefinitions();
-	        List<String> colIds = new ArrayList<String>();
-	        
-	        if (colDefs != null) {
-	        	colIds.add("ROWID");
-	        	for (ColumnDefinition colDef : colDefs) {
-	        		colIds.add(colDef.getColumnName());
-	        	}
-		        schemaMgr.addTable(tblName, (String[]) colIds.toArray());
-	        } else {
-	        	// no columns to enter -- just reject the query
-	        	buffer.delete(0, buffer.length());
-	        	return;
-	        }
-	        
-	        buffer.append(schemaMgr.getPhysicalTableName(tblName));
-	        
-	        if (createTable.getSelect() != null) {
-	            buffer.append(" AS ");
-	            if (createTable.isSelectParenthesis()) {
-	                buffer.append("(");
-	            }
-	            Select sel = createTable.getSelect();
-	            sel.accept(this.statementDeParser); // TODO: make sure you give this class a custom statementDeParser
-	            if (createTable.isSelectParenthesis()) {
-	                buffer.append(")");
-	            }
-	        } else {
-	            if (createTable.getColumnDefinitions() != null) {
-	                buffer.append(" ( ROWID INT, ");
-	                for (Iterator<ColumnDefinition> iter = createTable.getColumnDefinitions().iterator(); iter.
-	                        hasNext();) {
-	                    ColumnDefinition columnDefinition = iter.next();
-	                    buffer.append(schemaMgr.getPhysicalColumnName(tblName, columnDefinition.getColumnName()));
-	                    buffer.append(" ");
-	                    buffer.append("VARBINARY(1000000)"); // because we're using H2 and storing everything as byte[]
-	                    if (columnDefinition.getColumnSpecStrings() != null) {
-	                        for (String s : columnDefinition.getColumnSpecStrings()) {
-	                            buffer.append(" ");
-	                            buffer.append(s);
-	                        }
-	                    }
-
-	                    if (iter.hasNext()) {
-	                        buffer.append(", ");
-	                    }
-	                }
-
-	                if (createTable.getIndexes() != null) {
-	                    for (Iterator<Index> iter = createTable.getIndexes().iterator(); iter.hasNext();) {
-	                        buffer.append(", ");
-	                        Index index = iter.next();
-	                        buffer.append(index.toString());
-	                    }
-	                }
-
-	                buffer.append(")");
-	            }
-	        }
-		}
+	  
 	}
 	
 	/**
@@ -319,7 +55,7 @@ public class Parser {
 		String originalQuery = qp.getQuery();
 		
 		StringBuilder buffer = new StringBuilder();
-		ExpressionDeParser expr = new substituteEncryptedCols();
+		ExpressionDeParser expr = new EncryptExpression();
 		TablesNamesFinder tnf = new TablesNamesFinder();
 		
 		SelectDeParser selectDeparser = new SelectDeParser(expr, buffer);
