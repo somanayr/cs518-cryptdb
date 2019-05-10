@@ -119,6 +119,16 @@ public class SchemaManager {
 		return new ArrayList<String>(schemaAnnotation.get(tableId).get(columnId).keySet());
 	}
 	
+	public String getSubcolumnForScheme(String tableId, String columnId, CryptoScheme scheme) {
+		for(String subColumn : schemaAnnotation.get(tableId).get(columnId).keySet()) {
+			Onion o = schemaAnnotation.get(tableId).get(columnId).get(subColumn);
+			if(o.canHandle(scheme)) {
+				return subColumn;
+			}
+		}
+		throw new UnsupportedOperationException();
+	}
+	
 	public String getPhysicalTableName(String tableId) {
 		return tableNames.get(tableId);
 	}
