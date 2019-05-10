@@ -29,7 +29,7 @@ public class EncryptExpression extends ExpressionDeParser {
 		this.cryptoScheme = CryptoScheme.DET;
 	}
 	
-	public EncryptExpression(String tableId, String columnId, String rowId) {
+	public void updateEncryption(String tableId, String columnId, String rowId) {
 		this.tableId = tableId;
 		this.columnId = columnId;
 		this.rowId = rowId;

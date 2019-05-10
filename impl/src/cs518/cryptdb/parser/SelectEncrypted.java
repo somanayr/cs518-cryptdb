@@ -2,6 +2,8 @@ package cs518.cryptdb.parser;
 
 import java.util.Iterator;
 
+import cs518.cryptdb.proxy.SchemaManager;
+
 import net.sf.jsqlparser.expression.ExpressionVisitor;
 import net.sf.jsqlparser.expression.ExpressionVisitorAdapter;
 import net.sf.jsqlparser.expression.OracleHint;
@@ -21,9 +23,11 @@ public class SelectEncrypted extends SelectDeParser {
 	
 	protected StringBuilder buffer = new StringBuilder();
     private ExpressionVisitor expressionVisitor = new ExpressionVisitorAdapter();
+    private SchemaManager schemaMgr;
     
-    public SelectEncrypted(ExpressionVisitor expressionVisitor, StringBuilder buffer) {
+    public SelectEncrypted(ExpressionVisitor expressionVisitor, StringBuilder buffer, SchemaManager schemaMgr) {
     	super(expressionVisitor, buffer);
+    	this.schemaMgr = schemaMgr;
     }
     
     @Override
@@ -59,6 +63,7 @@ public class SelectEncrypted extends SelectDeParser {
                 for (Iterator<SelectItem> iter = plainSelect.getDistinct().getOnSelectItems().
                         iterator(); iter.hasNext();) {
                     SelectItem selectItem = iter.next();
+                    // this redirects to the standard SelectDeParser, which will use the given ExpressionVisitor
                     selectItem.accept(this);
                     if (iter.hasNext()) {
                         buffer.append(", ");
@@ -160,6 +165,12 @@ public class SelectEncrypted extends SelectDeParser {
         if (plainSelect.isUseBrackets()) {
             buffer.append(")");
         }
+    }
+    
+    @Override
+    public void visit(Table tableName) {
+        buffer.append(schemaMgr.getPhysicalTableName(tableName.getFullyQualifiedName()));
+        // no alias, no pivot, no hints
     }
     
 }
