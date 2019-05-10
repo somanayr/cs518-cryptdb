@@ -55,5 +55,10 @@ public class DatabaseMain implements PacketHandler {
 	public int getPort() {
 		return io.getPort();
 	}
+	
+	public static void main(String[] args) throws IOException, SQLException {
+		DatabaseMain dm = new DatabaseMain();
+		System.out.println("Started database on port: " + dm.getPort());
+	}
 
 }

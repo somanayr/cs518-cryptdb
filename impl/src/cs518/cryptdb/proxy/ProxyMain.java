@@ -80,7 +80,8 @@ public class ProxyMain implements PacketHandler {
 	
 	public static void main(String[] args) {
 		try {
-			new ProxyMain("localhost", 0);
+			ProxyMain pm = new ProxyMain("localhost", 0);
+			System.out.println("Started proxy on port " + pm.getPort());
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (SQLException e) {
