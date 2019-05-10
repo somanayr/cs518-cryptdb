@@ -26,7 +26,6 @@ public class DatabaseMain implements PacketHandler {
 
 	@Override
 	public void handlePacket(Packet p) {
-		System.out.println("Got database packet " + p);
 		if(p instanceof QueryPacket) {
 			try {
 				Packet response;

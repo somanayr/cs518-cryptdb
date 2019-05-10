@@ -94,6 +94,8 @@ public abstract class Serializer<C> {
 
 		@Override
 		public Integer deserialize(byte[] b) {
+			if(b.length != 4)
+				throw new IllegalArgumentException("Size inappropriate: " + b.length + "; expected 4");
 			return ByteBuffer.wrap(b).getInt();
 		}
 		

@@ -55,8 +55,10 @@ public abstract class Packet {
 		ArrayList<byte[]> objects = new ArrayList<>();
 		ByteBuffer buf = ByteBuffer.wrap(packet);
 		int numObjects = buf.getInt();
+		String arLen = "";
 		while(buf.hasRemaining()) {
 			int len = buf.getInt();
+			arLen += "," + len;
 			byte[] ar = new byte[len];
 			buf.get(ar);
 			objects.add(ar);
@@ -88,14 +90,21 @@ public abstract class Packet {
 			buf.putInt(ar.length);
 			buf.put(ar);
 		}
+		
 		return buf.array();
 	}
 	
 	public void deserialize(byte[][] incoming) {
 		Object[] ret = new Object[incoming.length];
 		Class<?>[] classes = getClasses();
-		for (int i = 0; i < classes.length; i++) {
-			ret[i] = Serializer.toObject(incoming[i], classes[i]);
+		if(incoming.length != classes.length)
+			System.err.println("Mismatched data length for packet #" + this.packetId + ": " + incoming.length);
+		try {
+			for (int i = 0; i < classes.length; i++) {
+				ret[i] = Serializer.toObject(incoming[i], classes[i]);
+			}
+		} catch (Exception e) {
+			throw e;
 		}
 		try {
 			this.setContents(ret);
@@ -124,12 +133,14 @@ public abstract class Packet {
 		int len = Serializer.toInt(lenb);
 		
 		byte[] data = new byte[len - INT_LENGTH * 2];
-		is.read(data);
+		int dataLen = 0;
+		while((dataLen += is.read(data, dataLen, data.length - dataLen)) < data.length);
 		return instantiate(packetId, data);
 	}
 	
 	public void writePacket(OutputStream os) throws IOException {
-		os.write(serialize());
+		byte[] serialized = serialize();
+		os.write(serialized);
 	}
 	
 	public String toString() {

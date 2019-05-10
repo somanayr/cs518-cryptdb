@@ -1,5 +1,7 @@
 package cs518.cryptdb.common;
 
+import java.io.File;
+import java.io.PrintStream;
 import java.sql.ResultSet;
 import java.sql.Statement;
 
@@ -10,8 +12,15 @@ import cs518.cryptdb.proxy.ProxyMain;
 
 public class FullTest {
 	public static void main(String[] args) throws Exception{
+		PrintStream sysout = System.out;
+		File outfile = new File("output/out.txt");
+		if(outfile.exists())
+			outfile.delete();
+		outfile.createNewFile();
+		System.setOut(new PrintStream(outfile));
+		
 		directTest();
-		System.out.println("Finished");
+		sysout.println("Finished");
 	}
 	
 	public static void directTest() throws Exception {
