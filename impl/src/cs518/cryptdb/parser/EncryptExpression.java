@@ -15,6 +15,9 @@ public class EncryptExpression extends ExpressionDeParser {
 	private SelectVisitor selectVisitor;
 	private CryptoScheme cryptoScheme;
 	private SchemaManager schemaMgr;
+	private String tableId;
+	private String columnId;
+	private String rowId;
 	
 	public EncryptExpression() {
 		
@@ -24,6 +27,12 @@ public class EncryptExpression extends ExpressionDeParser {
 		this.buffer = buffer;
 		this.selectVisitor = selectVisitor;
 		this.cryptoScheme = CryptoScheme.DET;
+	}
+	
+	public EncryptExpression(String tableId, String columnId, String rowId) {
+		this.tableId = tableId;
+		this.columnId = columnId;
+		this.rowId = rowId;
 	}
 	
 	@Override
@@ -41,8 +50,9 @@ public class EncryptExpression extends ExpressionDeParser {
 	    }
 		String op = temp.append(stringValue.getValue()).toString();
 		// TODO: how to get table, column, row info from just a stringValue?
-		//Pair<String, byte[]> encrypted = schemaMgr.encrypt(tableId, columnId, rowId, op.getBytes(), cryptoScheme);
-	    //buffer.append("'").append(new String(encrypted.getSecond())).append("'");
+		Pair<String, byte[]> encrypted = schemaMgr.encrypt(this.tableId, this.columnId,
+				this.rowId, op.getBytes(), cryptoScheme);
+	    buffer.append("'").append(new String(encrypted.getSecond())).append("'");
 	}
 		
 }	
