@@ -21,7 +21,7 @@ public class FullTest {
 		System.out.println("Setting up App");
 		ApplicationMain am = new ApplicationMain("localhost", dbPort);
 		System.out.println("Running App");
-		SQLSequenceReader.runApplication("../test_db/employees.sql", am);
+		SQLSequenceReader.runApplication("../test_db_reduced/employees.sql", am);
 		//runApplication(am);
 	}
 	

@@ -12,6 +12,7 @@ import java.util.Set;
 
 import cs518.cryptdb.common.communication.PacketIO;
 import cs518.cryptdb.common.communication.packet.DeOnionPacket;
+import cs518.cryptdb.common.crypto.CryptoRND;
 import cs518.cryptdb.common.crypto.CryptoScheme;
 import cs518.cryptdb.common.crypto.Onion;
 import cs518.cryptdb.common.crypto.OnionRDO;
@@ -53,12 +54,14 @@ public class SchemaManager {
 	private Map<String,String> columnNamesBack = new HashMap<>();
 	private Set<String> usedNames = new HashSet<>();
 	private PacketIO io;
+	private byte[] namingKey;
 	
 	public SchemaManager(PacketIO io) {
 		this.io = io;
+		this.namingKey = CryptoRND.generateKey();
 	}
 	
-	//TODO encrypt column names
+	//TODO encrypt column names instead of randomly generated
 	
 	public List<String> addTable(String tableId, String[] columnIds) {
 		if(tableNames.containsKey(tableId))
