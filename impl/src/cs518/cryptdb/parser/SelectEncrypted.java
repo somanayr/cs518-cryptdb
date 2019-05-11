@@ -8,7 +8,9 @@ import net.sf.jsqlparser.expression.ExpressionVisitor;
 import net.sf.jsqlparser.expression.ExpressionVisitorAdapter;
 import net.sf.jsqlparser.expression.OracleHint;
 import net.sf.jsqlparser.schema.Table;
+import net.sf.jsqlparser.statement.select.AllTableColumns;
 import net.sf.jsqlparser.statement.select.First;
+import net.sf.jsqlparser.statement.select.FromItem;
 import net.sf.jsqlparser.statement.select.Join;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.SelectItem;
@@ -32,6 +34,11 @@ public class SelectEncrypted extends SelectDeParser {
     
     @Override
     public void visit(PlainSelect plainSelect) {
+    	FromItem fromItem = plainSelect.getFromItem();
+    	if (!(fromItem instanceof Table)) {
+    		return;	// we only accept one table
+    	}
+    	
         if (plainSelect.isUseBrackets()) {
             buffer.append("(");
         }
@@ -89,7 +96,7 @@ public class SelectEncrypted extends SelectDeParser {
 
         for (Iterator<SelectItem> iter = plainSelect.getSelectItems().iterator(); iter.hasNext();) {
             SelectItem selectItem = iter.next();
-            selectItem.accept(this);
+            selectItem.accept(this);	// these better be Columns, in which case we're fine
             if (iter.hasNext()) {
                 buffer.append(", ");
             }
@@ -171,6 +178,12 @@ public class SelectEncrypted extends SelectDeParser {
     public void visit(Table tableName) {
         buffer.append(schemaMgr.getPhysicalTableName(tableName.getFullyQualifiedName()));
         // no alias, no pivot, no hints
+    }
+    
+    @Override
+    public void visit(AllTableColumns allTableColumns) {
+    	String encryptedTable = schemaMgr.getPhysicalTableName(allTableColumns.getTable().getFullyQualifiedName());
+        buffer.append(encryptedTable).append(".*");
     }
     
 }
