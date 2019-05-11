@@ -45,7 +45,7 @@ public class Parser {
 		
 		stmt.accept(stmtDeparser);
 		String output = stmtDeparser.getBuffer().toString();
-        return (QueryPacket) Packet.instantiate(Packet.QUERY_PACKET_ID, output.getBytes());
+        return new QueryPacket(output);
 	}
 
 }
