@@ -15,6 +15,7 @@ import javax.sql.rowset.CachedRowSet;
 
 import com.sun.rowset.CachedRowSetImpl;
 
+import cs518.cryptdb.common.Util;
 import cs518.cryptdb.common.crypto.CryptoScheme;
 
 public abstract class Serializer<C> {
@@ -124,7 +125,7 @@ public abstract class Serializer<C> {
 
 		@Override
 		public CryptoScheme deserialize(byte[] b) {
-			return CryptoScheme.values()[IntegerSerializer.toInt(b)];
+			return CryptoScheme.values()[Util.byteToInt(b)];
 		}
 		
 	}
@@ -160,10 +161,6 @@ public abstract class Serializer<C> {
 			return null;
 		}
 		
-	}
-
-	public static int toInt(byte[] intB) {
-		return ByteBuffer.wrap(intB).getInt();
 	}
 	
 }

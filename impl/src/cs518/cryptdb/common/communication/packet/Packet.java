@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import cs518.cryptdb.common.Util;
 import cs518.cryptdb.common.communication.Serializer;
 
 public abstract class Packet {
@@ -129,8 +130,8 @@ public abstract class Packet {
 		byte[] lenb = new byte[4];
 		is.read(idb);
 		is.read(lenb);
-		int packetId = Serializer.toInt(idb);
-		int len = Serializer.toInt(lenb);
+		int packetId = Util.byteToInt(idb);
+		int len = Util.byteToInt(lenb);
 		
 		byte[] data = new byte[len - INT_LENGTH * 2];
 		int dataLen = 0;
