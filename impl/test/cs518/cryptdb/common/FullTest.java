@@ -19,7 +19,8 @@ public class FullTest {
 		outfile.createNewFile();
 		System.setOut(new PrintStream(outfile));
 		
-		directTest();
+		//directTest();
+		proxyTest();
 		sysout.println("Finished");
 	}
 	
@@ -42,7 +43,8 @@ public class FullTest {
 		int proxyPort = 0;
 		proxyPort = pm.getPort();
 		ApplicationMain am = new ApplicationMain("localhost", proxyPort);
-		runApplication(am);
+		SQLSequenceReader.runApplication("../test_db_reduced/basic_test.sql", am);
+		//runApplication(am);
 	}
 	
 	public static void runApplication(ApplicationMain am) throws Exception {
