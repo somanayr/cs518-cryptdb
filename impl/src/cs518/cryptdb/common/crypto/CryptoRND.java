@@ -43,7 +43,7 @@ public class CryptoRND {
 		KeyGenerator gen;
 		try {
 			gen = KeyGenerator.getInstance("AES");
-			gen.init(256);
+			gen.init(128);
 			return gen.generateKey().getEncoded();
 		} catch (NoSuchAlgorithmException e) {
 			e.printStackTrace();
