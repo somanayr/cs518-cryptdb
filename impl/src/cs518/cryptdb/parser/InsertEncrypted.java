@@ -1,11 +1,15 @@
 package cs518.cryptdb.parser;
 
 import java.util.Iterator;
+import java.util.List;
 
+import cs518.cryptdb.common.crypto.CryptoScheme;
+import cs518.cryptdb.common.pair.Pair;
 import cs518.cryptdb.proxy.SchemaManager;
 
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.ExpressionVisitor;
+import net.sf.jsqlparser.expression.StringValue;
 import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
 import net.sf.jsqlparser.expression.operators.relational.MultiExpressionList;
 import net.sf.jsqlparser.schema.Column;
@@ -100,11 +104,25 @@ public class InsertEncrypted extends InsertDeParser {
 	@Override
     public void visit(ExpressionList expressionList) {
         buffer.append(" VALUES (");
-        buffer.append(schemaMgr.getNewRowId(tableId));
+        String rowId = schemaMgr.getNewRowId(tableId);
+        buffer.append(rowId);
+    	List<String> virtualColumns = schemaMgr.getVirtualColumns(tableId);
+    	Iterator<String> virtColsIter = virtualColumns.iterator();
         buffer.append(", ");
         for (Iterator<Expression> iter = expressionList.getExpressions().iterator(); iter.hasNext();) {
             Expression expression = iter.next();
-            expression.accept(expressionVisitor);
+            String virtColName = virtColsIter.next();
+            if (expression instanceof StringValue) {
+            	StringValue sv = (StringValue) expression;
+            	StringBuffer temp = new StringBuffer();
+        		if (sv.getPrefix() != null) {
+        	        temp.append(sv.getPrefix());
+        	    }
+        		String op = temp.append(sv.getValue()).toString();
+            	Pair<String, byte[]> encrypted = schemaMgr.encrypt(tableId, virtColName,
+            														rowId, op.getBytes(), CryptoScheme.RND);
+            }
+            //expression.accept(expressionVisitor);
             if (iter.hasNext()) {
                 buffer.append(", ");
             }
