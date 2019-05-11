@@ -28,8 +28,10 @@ public class FullTest {
 		System.out.println("Setting up DB");
 		DatabaseMain dbm = new DatabaseMain();
 		int dbPort = dbm.getPort();
+		ProxyMain pm = new ProxyMain("localhost", dbPort);
+		int proxyPort = pm.getPort();
 		System.out.println("Setting up App");
-		ApplicationMain am = new ApplicationMain("localhost", dbPort);
+		ApplicationMain am = new ApplicationMain("localhost", proxyPort);
 		System.out.println("Running App");
 		SQLSequenceReader.runApplication("../test_db_reduced/basic_test.sql", am);
 		//runApplication(am);

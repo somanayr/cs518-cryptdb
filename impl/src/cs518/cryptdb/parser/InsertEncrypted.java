@@ -4,12 +4,14 @@ import java.util.Base64;
 import java.util.Iterator;
 import java.util.List;
 
+import cs518.cryptdb.common.Util;
 import cs518.cryptdb.common.crypto.CryptoScheme;
 import cs518.cryptdb.common.pair.Pair;
 import cs518.cryptdb.proxy.SchemaManager;
 
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.ExpressionVisitor;
+import net.sf.jsqlparser.expression.LongValue;
 import net.sf.jsqlparser.expression.StringValue;
 import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
 import net.sf.jsqlparser.expression.operators.relational.MultiExpressionList;
@@ -113,6 +115,7 @@ public class InsertEncrypted extends InsertDeParser {
         for (Iterator<Expression> iter = expressionList.getExpressions().iterator(); iter.hasNext();) {
             Expression expression = iter.next();
             String virtColName = virtColsIter.next();
+            Pair<String, byte[]> encrypted = null;
             if (expression instanceof StringValue) {
             	StringValue sv = (StringValue) expression;
             	StringBuffer temp = new StringBuffer();
@@ -120,11 +123,14 @@ public class InsertEncrypted extends InsertDeParser {
         	        temp.append(sv.getPrefix());
         	    }
         		String op = temp.append(sv.getValue()).toString();
-            	Pair<String, byte[]> encrypted = schemaMgr.encrypt(tableId, virtColName,
-            														rowId, op.getBytes(), CryptoScheme.RND);
-            	byte[] base64 = Base64.getEncoder().encode(encrypted.getSecond());
-            	buffer.append("'").append(new String(base64)).append("'");
+            	encrypted = schemaMgr.encrypt(tableId, virtColName, rowId, op.getBytes(), CryptoScheme.RND);
+            } else if (expression instanceof LongValue) {
+            	LongValue lv = (LongValue) expression;
+        		byte[] plaintext = Util.intToBytes(Integer.parseInt(lv.toString()) - Integer.MIN_VALUE);
+            	encrypted = schemaMgr.encrypt(tableId, virtColName, rowId, plaintext, CryptoScheme.RND);
             }
+        	byte[] base64 = Base64.getEncoder().encode(encrypted.getSecond());
+        	buffer.append("'").append(new String(base64)).append("'");
             if (iter.hasNext()) {
                 buffer.append(", ");
             }
