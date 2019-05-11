@@ -50,7 +50,7 @@ public class Database {
 		}).start(); //Do we actually need this??
 		
 		Connection conn = DriverManager.
-				getConnection("jdbc:h2:mem:test", "sa", "");
+				getConnection("jdbc:h2:mem:test;MODE=MySQL;", "sa", "");
 
 		connection = conn;
 	}
@@ -79,6 +79,7 @@ public class Database {
 	 */
 	public static int executeUpdate(String statement) throws SQLException {
 		s = connection.createStatement();
+		System.out.println(statement);
 		int ret = s.executeUpdate(statement);
 		return ret;
 	}

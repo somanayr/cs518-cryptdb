@@ -114,16 +114,20 @@ public class PacketIO {
 	}
 	
 	//TODO: Technically we sould push to a queue and handle packets asynchronously. For a single client model this should be ok though
-	public synchronized void pushPacket(Packet p) {
-		packetHandler.handlePacket(p);
+	public void pushPacket(Packet p) {
+		synchronized(packetHandler) {
+			packetHandler.handlePacket(p);
+		}
 	}
 	
-	public synchronized void sendPacket(int childId, Packet p) throws IOException {
-		if(!listeners.containsKey(childId)) {
-			System.out.println(listeners.toString());
-			throw new NoSuchElementException("" + childId);
+	public void sendPacket(int childId, Packet p) throws IOException {
+		synchronized(listeners) {
+			if(!listeners.containsKey(childId)) {
+				System.out.println(listeners.toString());
+				throw new NoSuchElementException("" + childId);
+			}
+			listeners.get(childId).send(p);
 		}
-		listeners.get(childId).send(p);
 //		throw new NotImplementedException();
 		//TODO
 	}
