@@ -23,9 +23,14 @@ public class DeleteEncrypted extends DeleteDeParser {
 	}
 	
 	public void deParse(Delete delete) {
+		if (!(expressionVisitor instanceof EncryptExpression))
+			return;
+		EncryptExpression encryptExpression = (EncryptExpression) expressionVisitor;
         buffer.append("DELETE");
-        if (delete.getTables() != null && delete.getTables().size() > 0) {
+        if (delete.getTables() != null && delete.getTables().size() == 1) {
             for (Table table : delete.getTables()) {
+            	System.out.println(table.getFullyQualifiedName());
+            	encryptExpression.updateEncryption(table, null, null);
                 buffer.append(" ").append(schemaMgr.getPhysicalTableName(table.getFullyQualifiedName()));
             }
         }

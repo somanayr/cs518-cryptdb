@@ -1,5 +1,6 @@
 package cs518.cryptdb.parser;
 
+import java.util.Base64;
 import java.util.Iterator;
 import java.util.List;
 
@@ -46,7 +47,7 @@ public class InsertEncrypted extends InsertDeParser {
         }
         buffer.append("INTO ");
         
-        tableId = insert.getTable().getName();
+        tableId = insert.getTable().getFullyQualifiedName();
         buffer.append(schemaMgr.getPhysicalTableName(tableId));
         
         if (insert.getColumns() != null) {
@@ -121,8 +122,9 @@ public class InsertEncrypted extends InsertDeParser {
         		String op = temp.append(sv.getValue()).toString();
             	Pair<String, byte[]> encrypted = schemaMgr.encrypt(tableId, virtColName,
             														rowId, op.getBytes(), CryptoScheme.RND);
+            	byte[] base64 = Base64.getEncoder().encode(encrypted.getSecond());
+            	buffer.append("'").append(new String(base64)).append("'");
             }
-            //expression.accept(expressionVisitor);
             if (iter.hasNext()) {
                 buffer.append(", ");
             }

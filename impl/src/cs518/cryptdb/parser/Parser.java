@@ -34,7 +34,7 @@ public class Parser {
 		String originalQuery = qp.getQuery();
 		
 		StringBuilder buffer = new StringBuilder();
-		ExpressionDeParser expr = new EncryptExpression();
+		ExpressionDeParser expr = new EncryptExpression(schemaMgr);
 		
 		SelectDeParser selectDeparser = new SelectDeParser(expr, buffer);
         expr.setSelectVisitor(selectDeparser);

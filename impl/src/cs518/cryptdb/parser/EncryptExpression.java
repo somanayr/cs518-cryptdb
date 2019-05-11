@@ -15,12 +15,13 @@ public class EncryptExpression extends ExpressionDeParser {
 	private SelectVisitor selectVisitor;
 	private CryptoScheme cryptoScheme;
 	private SchemaManager schemaMgr;
+	private Table table;
 	private String tableId;
 	private String columnId;
 	private String rowId;
 	
-	public EncryptExpression() {
-		
+	public EncryptExpression(SchemaManager schemaMgr) {
+		this.schemaMgr = schemaMgr;
 	}
 		
 	public EncryptExpression(SelectVisitor selectVisitor, StringBuilder buffer) {
@@ -29,16 +30,17 @@ public class EncryptExpression extends ExpressionDeParser {
 		this.cryptoScheme = CryptoScheme.DET;
 	}
 	
-	public void updateEncryption(String tableId, String columnId, String rowId) {
-		this.tableId = tableId;
+	public void updateEncryption(Table table, String columnId, String rowId) {
+		this.table = table;
 		this.columnId = columnId;
 		this.rowId = rowId;
 	}
 	
 	@Override
 	public void visit(Column col) {
-		Table table = col.getTable();
-		String encryptedCol = schemaMgr.getPhysicalColumnName(table.getName(), col.getColumnName());
+		if (table.getFullyQualifiedName() == null)
+			throw new RuntimeException();
+		String encryptedCol = schemaMgr.getPhysicalColumnName(table.getFullyQualifiedName(), col.getColumnName());
 		this.getBuffer().append(encryptedCol);
 	}
 		
@@ -53,6 +55,10 @@ public class EncryptExpression extends ExpressionDeParser {
 		Pair<String, byte[]> encrypted = schemaMgr.encrypt(this.tableId, this.columnId,
 				this.rowId, op.getBytes(), cryptoScheme);
 	    buffer.append("'").append(new String(encrypted.getSecond())).append("'");
+	}
+	
+	public void setSchemaManager(SchemaManager schemaMgr) {
+		this.schemaMgr = schemaMgr;
 	}
 		
 }	
