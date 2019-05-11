@@ -9,6 +9,7 @@ import cs518.cryptdb.common.communication.PacketIO;
 import cs518.cryptdb.common.communication.packet.Packet;
 import cs518.cryptdb.common.communication.packet.QueryPacket;
 import cs518.cryptdb.database.EncryptedDatabase;
+import cs518.cryptdb.proxy.ProxyMain;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 public class ApplicationMain implements PacketHandler {
@@ -55,5 +56,20 @@ public class ApplicationMain implements PacketHandler {
 		System.out.println("Got new packet: ");
 		packets.add(p);
 		
+	}
+	
+	public static void main(String[] args) {
+		if(args.length != 3) {
+			System.out.println("Argumnets need to be: proxyAddr/dbAddr proxyPort/dbPort sqlFile");
+		}
+		try {
+			ApplicationMain am = new ApplicationMain(args[0], Integer.parseInt(args[1]));
+			System.out.println("Started application. Running queries.");
+			SQLSequenceReader.runApplication(args[2], am);
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 }

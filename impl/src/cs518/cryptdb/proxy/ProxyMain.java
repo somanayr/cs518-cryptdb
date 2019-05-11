@@ -79,8 +79,11 @@ public class ProxyMain implements PacketHandler {
 	}
 	
 	public static void main(String[] args) {
+		if(args.length != 2) {
+			System.out.println("Argumnets need to be: dbAddr dbPort");
+		}
 		try {
-			ProxyMain pm = new ProxyMain("localhost", 0);
+			ProxyMain pm = new ProxyMain(args[0], Integer.parseInt(args[1]));
 			System.out.println("Started proxy on port " + pm.getPort());
 		} catch (IOException e) {
 			e.printStackTrace();
