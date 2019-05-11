@@ -23,18 +23,21 @@ import net.sf.jsqlparser.util.deparser.SelectDeParser;
 
 public class SelectEncrypted extends SelectDeParser {
 	
-	protected StringBuilder buffer = new StringBuilder();
-    private ExpressionVisitor expressionVisitor = new ExpressionVisitorAdapter();
+	protected StringBuilder buffer;
+    private ExpressionVisitor expressionVisitor;
     private SchemaManager schemaMgr;
     
     public SelectEncrypted(ExpressionVisitor expressionVisitor, StringBuilder buffer, SchemaManager schemaMgr) {
     	super(expressionVisitor, buffer);
+    	this.buffer = buffer;
+    	this.expressionVisitor = expressionVisitor;
     	this.schemaMgr = schemaMgr;
     }
     
     @Override
     public void visit(PlainSelect plainSelect) {
     	FromItem fromItem = plainSelect.getFromItem();
+    	System.out.println(fromItem.getClass());
     	if (!(fromItem instanceof Table)) {
     		return;	// we only accept one table
     	}

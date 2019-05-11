@@ -36,7 +36,7 @@ public class Parser {
 		StringBuilder buffer = new StringBuilder();
 		ExpressionDeParser expr = new EncryptExpression(schemaMgr);
 		
-		SelectDeParser selectDeparser = new SelectDeParser(expr, buffer);
+		SelectEncrypted selectDeparser = new SelectEncrypted(expr, buffer, schemaMgr);
         expr.setSelectVisitor(selectDeparser);
         expr.setBuffer(buffer);
         EncryptedStatementDeParser stmtDeparser = new EncryptedStatementDeParser(expr, selectDeparser, buffer, schemaMgr);
