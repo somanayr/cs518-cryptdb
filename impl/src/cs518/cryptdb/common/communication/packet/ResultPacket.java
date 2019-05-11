@@ -129,11 +129,6 @@ public class ResultPacket extends Packet {
 		newCrs.populate(crs);
 		crs = newCrs;
 	}
-
-	
-	static {
-		Packet.registerPacket(PACKET_ID, ResultPacket.class);
-	}
 	
 	
 

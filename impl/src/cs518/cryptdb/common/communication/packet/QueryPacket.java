@@ -40,10 +40,6 @@ public class QueryPacket extends Packet{
 		return new Object[] {query, tag};
 	}
 	
-	static {
-		Packet.registerPacket(PACKET_ID, QueryPacket.class);
-	}
-	
 	public int getTag() {
 		return tag;
 	}

@@ -56,8 +56,4 @@ public class DeOnionPacket extends Packet{
 		return new Object[] {scheme, key, tableId, columnId};
 	}
 	
-	static {
-		Packet.registerPacket(PACKET_ID, DeOnionPacket.class);
-	}
-	
 }

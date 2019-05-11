@@ -79,7 +79,6 @@ public class Database {
 	 */
 	public static int executeUpdate(String statement) throws SQLException {
 		s = connection.createStatement();
-		System.out.println(statement);
 		int ret = s.executeUpdate(statement);
 		return ret;
 	}
