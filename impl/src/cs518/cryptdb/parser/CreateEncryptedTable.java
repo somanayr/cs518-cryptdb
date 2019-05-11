@@ -52,7 +52,8 @@ public class CreateEncryptedTable extends CreateTableDeParser {
         	for (ColumnDefinition colDef : colDefs) {
         		colIds.add(colDef.getColumnName());
         	}
-	        schemaMgr.addTable(tblName, (String[]) colIds.toArray());
+        	String[] columnNames = new String[colIds.size()];
+	        schemaMgr.addTable(tblName, colIds.toArray(columnNames));
         } else {
         	// no columns to enter -- just reject the query
         	buffer.delete(0, buffer.length());
