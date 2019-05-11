@@ -5,6 +5,7 @@ import java.util.Iterator;
 import cs518.cryptdb.proxy.SchemaManager;
 
 import net.sf.jsqlparser.statement.create.table.CreateTable;
+import net.sf.jsqlparser.statement.delete.Delete;
 import net.sf.jsqlparser.statement.insert.Insert;
 import net.sf.jsqlparser.statement.select.Select;
 import net.sf.jsqlparser.statement.select.WithItem;
@@ -63,5 +64,15 @@ public class EncryptedStatementDeParser extends StatementDeParser {
         }
         select.getSelectBody().accept(selectDeParser);
 	}
+	
+	@Override
+    public void visit(Delete delete) {
+        selectDeParser.setBuffer(buffer);
+        expressionDeParser.setSelectVisitor(selectDeParser);
+        expressionDeParser.setBuffer(buffer);
+        selectDeParser.setExpressionVisitor(expressionDeParser);
+        DeleteEncrypted deleteDeParser = new DeleteEncrypted(expressionDeParser, buffer, schemaMgr);
+        deleteDeParser.deParse(delete);
+    }
 	
 }
