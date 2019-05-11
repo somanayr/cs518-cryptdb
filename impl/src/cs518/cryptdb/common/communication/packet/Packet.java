@@ -147,4 +147,11 @@ public abstract class Packet {
 		return "Packet " + packetId + " contents: " + Arrays.toString(getContents());
 	}
 	
+	static {
+		Packet.registerPacket(QueryPacket.PACKET_ID, QueryPacket.class);
+		Packet.registerPacket(DeOnionPacket.PACKET_ID, DeOnionPacket.class);
+		Packet.registerPacket(ResultPacket.PACKET_ID, ResultPacket.class);
+		Packet.registerPacket(StatusPacket.PACKET_ID, StatusPacket.class);
+	}
+	
 }

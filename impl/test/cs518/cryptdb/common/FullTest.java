@@ -13,14 +13,14 @@ import cs518.cryptdb.proxy.ProxyMain;
 public class FullTest {
 	public static void main(String[] args) throws Exception{
 		PrintStream sysout = System.out;
-		File outfile = new File("output/out.txt");
-		if(outfile.exists())
-			outfile.delete();
-		outfile.createNewFile();
-		System.setOut(new PrintStream(outfile));
+//		File outfile = new File("output/out.txt");
+//		if(outfile.exists())
+//			outfile.delete();
+//		outfile.createNewFile();
+//		System.setOut(new PrintStream(outfile));
 		
-		//directTest();
-		proxyTest();
+		directTest();
+		//proxyTest();
 		sysout.println("Finished");
 	}
 	
@@ -31,7 +31,7 @@ public class FullTest {
 		System.out.println("Setting up App");
 		ApplicationMain am = new ApplicationMain("localhost", dbPort);
 		System.out.println("Running App");
-		SQLSequenceReader.runApplication("../test_db_reduced/employees.sql", am);
+		SQLSequenceReader.runApplication("../test_db_reduced/basic_test.sql", am);
 		//runApplication(am);
 	}
 	

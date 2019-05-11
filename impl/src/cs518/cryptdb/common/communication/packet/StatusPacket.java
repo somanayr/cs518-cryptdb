@@ -53,8 +53,4 @@ public class StatusPacket extends Packet{
 		return String.format("StatusPacket:%s status=%d", tagString, status);
 	}
 	
-	static {
-		Packet.registerPacket(PACKET_ID, StatusPacket.class);
-	}
-	
 }

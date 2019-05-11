@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="create_run_jar" name="Create Runnable Jar for Project CryptDB-Implementation with Jar-in-Jar Loader">
+    <!--this file was created by Eclipse Runnable JAR file Export Wizard-->
+    <!--ANT 1.7 is required-->
+    <!--define folder properties-->
+    <property name="dir.buildfile" value="."/>
+<!--    <property name="dir.workspace" value="/home/ramos/eclipse-workspace"/>-->
+    <property name="dir.jarfile" value="../build"/>
+    <target name="create_run_jar">
+        <jar destfile="${dir.jarfile}/application.jar">
+            <manifest>
+                <attribute name="Main-Class" value="org.eclipse.jdt.internal.jarinjarloader.JarRsrcLoader"/>
+                <attribute name="Rsrc-Main-Class" value="cs518.cryptdb.application.ApplicationMain"/>
+                <attribute name="Class-Path" value="."/>
+                <attribute name="Rsrc-Class-Path" value="./ h2-1.4.199.jar ope.jar jsqlparser-2.1-SNAPSHOT.jar"/>
+            </manifest>
+            <zipfileset src="jar-in-jar-loader.zip"/>
+            <fileset dir="${dir.buildfile}/bin"/>
+            <zipfileset dir="../lib" includes="h2-1.4.199.jar"/>
+            <zipfileset dir="../lib" includes="ope.jar"/>
+            <zipfileset dir="../lib" includes="jsqlparser-2.1-SNAPSHOT.jar"/>
+        </jar>
+		<jar destfile="${dir.jarfile}/proxy.jar">
+            <manifest>
+                <attribute name="Main-Class" value="org.eclipse.jdt.internal.jarinjarloader.JarRsrcLoader"/>
+                <attribute name="Rsrc-Main-Class" value="cs518.cryptdb.proxy.ProxyMain"/>
+                <attribute name="Class-Path" value="."/>
+                <attribute name="Rsrc-Class-Path" value="./ h2-1.4.199.jar ope.jar jsqlparser-2.1-SNAPSHOT.jar"/>
+            </manifest>
+            <zipfileset src="jar-in-jar-loader.zip"/>
+            <fileset dir="${dir.buildfile}/bin"/>
+            <zipfileset dir="../lib" includes="h2-1.4.199.jar"/>
+            <zipfileset dir="../lib" includes="ope.jar"/>
+            <zipfileset dir="../lib" includes="jsqlparser-2.1-SNAPSHOT.jar"/>
+        </jar>
+		<jar destfile="${dir.jarfile}/database.jar">
+            <manifest>
+                <attribute name="Main-Class" value="org.eclipse.jdt.internal.jarinjarloader.JarRsrcLoader"/>
+                <attribute name="Rsrc-Main-Class" value="cs518.cryptdb.database.DatabaseMain"/>
+                <attribute name="Class-Path" value="."/>
+                <attribute name="Rsrc-Class-Path" value="./ h2-1.4.199.jar ope.jar jsqlparser-2.1-SNAPSHOT.jar"/>
+            </manifest>
+            <zipfileset src="jar-in-jar-loader.zip"/>
+            <fileset dir="${dir.buildfile}/bin"/>
+            <zipfileset dir="../lib" includes="h2-1.4.199.jar"/>
+            <zipfileset dir="../lib" includes="ope.jar"/>
+            <zipfileset dir="../lib" includes="jsqlparser-2.1-SNAPSHOT.jar"/>
+        </jar>
+        </target>
+</project>
