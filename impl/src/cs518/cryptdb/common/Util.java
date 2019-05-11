@@ -3,6 +3,7 @@ package cs518.cryptdb.common;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
 
 public class Util {
 	
@@ -23,5 +24,15 @@ public class Util {
 		}
 
 		return os.toByteArray();
+	}
+	
+
+
+	public static int byteToInt(byte[] intB) {
+		return ByteBuffer.wrap(intB).getInt();
+	}
+	
+	public static byte[] intToBytes(int i) {
+		return ByteBuffer.allocate(4).putInt(i).array();
 	}
 }
