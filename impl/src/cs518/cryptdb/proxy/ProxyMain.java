@@ -39,7 +39,7 @@ public class ProxyMain implements PacketHandler {
 				QueryPacket qp = (QueryPacket) p;
 				QueryPacket response = parser.parseQuery(qp);
 				response.setTag(p.getChildId());
-				io.sendPacket(p.getChildId(), response);
+				io.sendPacket(PacketIO.PARENT_ID, response);
 			} catch (IOException e) {
 				e.printStackTrace();
 			} catch (JSQLParserException e) {

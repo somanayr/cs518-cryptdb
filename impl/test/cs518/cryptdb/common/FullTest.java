@@ -19,12 +19,23 @@ public class FullTest {
 //		outfile.createNewFile();
 //		System.setOut(new PrintStream(outfile));
 		
-		directTest();
-		//proxyTest();
+		//directTest();
+		proxyTest();
 		sysout.println("Finished");
 	}
 	
 	public static void directTest() throws Exception {
+		System.out.println("Setting up DB");
+		DatabaseMain dbm = new DatabaseMain();
+		int dbPort = dbm.getPort();
+		System.out.println("Setting up App");
+		ApplicationMain am = new ApplicationMain("localhost", dbPort);
+		System.out.println("Running App");
+		SQLSequenceReader.runApplication("../test_db_reduced/basic_test.sql", am);
+		//runApplication(am);
+	}
+	
+	public static void proxyTest() throws Exception {
 		System.out.println("Setting up DB");
 		DatabaseMain dbm = new DatabaseMain();
 		int dbPort = dbm.getPort();
@@ -33,18 +44,6 @@ public class FullTest {
 		System.out.println("Setting up App");
 		ApplicationMain am = new ApplicationMain("localhost", proxyPort);
 		System.out.println("Running App");
-		SQLSequenceReader.runApplication("../test_db_reduced/basic_test.sql", am);
-		//runApplication(am);
-	}
-	
-	public static void proxyTest() throws Exception {
-
-		DatabaseMain dbm = new DatabaseMain();
-		int dbPort = dbm.getPort();
-		ProxyMain pm = new ProxyMain("localhost", dbPort);
-		int proxyPort = 0;
-		proxyPort = pm.getPort();
-		ApplicationMain am = new ApplicationMain("localhost", proxyPort);
 		SQLSequenceReader.runApplication("../test_db_reduced/basic_test.sql", am);
 		//runApplication(am);
 	}

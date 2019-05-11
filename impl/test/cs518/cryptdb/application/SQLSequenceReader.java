@@ -17,6 +17,7 @@ public class SQLSequenceReader {
 	
 	public static void runApplication(String sqlFile, ApplicationMain am) throws IOException {
 		List<String> l = readSQLFile(sqlFile);
+		
 		for(String s : l) {
 			System.out.println("Next statement: " + s);
 			am.sendStatement(s);

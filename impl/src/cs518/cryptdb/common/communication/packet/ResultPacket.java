@@ -103,7 +103,7 @@ public class ResultPacket extends Packet {
 				String pTable = crs.getMetaData().getTableName(i+1);
 				String tableId = sm.getTableNameFromPhysical(pTable);
 				String pCol = crs.getMetaData().getColumnName(i+1);
-				if(pCol == "ROWID") 
+				if(pCol.equals("ROWID")) 
 					continue;
 				String columnId = sm.getSubcolumnNameFromPhysical(pCol);
 				byte[] oldVal = Util.toByteArray(crs.getBinaryStream(i+1));
@@ -117,13 +117,15 @@ public class ResultPacket extends Packet {
 			String pTable = crs.getMetaData().getTableName(i+1);
 			String tableId = sm.getTableNameFromPhysical(pTable);
 			String pCol = crs.getMetaData().getColumnName(i+1);
-			if(pCol == "ROWID") 
+			if(pCol.equals("ROWID")) 
 				continue;
 			String columnId = sm.getSubcolumnNameFromPhysical(pCol);
 			
 			rsmdi.setTableName(i+1, tableId);
 			rsmdi.setColumnName(i+1, columnId);
 		}
+		
+		crs.beforeFirst();
 		
 		CachedRowSet newCrs = RowSetProvider.newFactory().createCachedRowSet();
 		newCrs.populate(crs);

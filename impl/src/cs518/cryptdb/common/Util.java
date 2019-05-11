@@ -7,6 +7,18 @@ import java.nio.ByteBuffer;
 
 public class Util {
 	
+	public static void ensure(boolean b, String s) {
+		if(!b) {
+			throw new AssertionError(s);
+		}
+	}
+	
+	public static void ensure(boolean b) {
+		if(!b) {
+			throw new AssertionError();
+		}
+	}
+	
 	/*
 	 * From https://www.techiedelight.com/convert-inputstream-byte-array-java/
 	 */

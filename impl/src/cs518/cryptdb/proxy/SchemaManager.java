@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
+import cs518.cryptdb.common.Util;
 import cs518.cryptdb.common.communication.PacketIO;
 import cs518.cryptdb.common.communication.packet.DeOnionPacket;
 import cs518.cryptdb.common.crypto.CryptoRND;
@@ -26,7 +27,7 @@ public class SchemaManager {
 	 * We could try to make this lower latency by piggybacking key table queries on the existing SQL query, but for now it's not a concern
 	 * 
 	 */
-	private static final char[] CHARSET = ("abcdefghijklmnopqrstuvwxyz" + "abcdefghijklmnopqrstuvwxyz".toUpperCase() + "1234567890").toCharArray();
+	private static final char[] CHARSET = ("abcdefghijklmnopqrstuvwxyz".toUpperCase()).toCharArray();
 	private static final int NUMCHARS = 10;
 	
 	private String getRandomString() {
@@ -63,7 +64,7 @@ public class SchemaManager {
 	
 	//TODO encrypt column names instead of randomly generated
 	
-	public List<String> addTable(String tableId, String[] columnIds) {
+	public List<List<String>> addTable(String tableId, String[] columnIds) {
 		if(tableNames.containsKey(tableId))
 			throw new IllegalArgumentException("Table ID already registered: " + tableId);
 		String pName = getRandomString();
@@ -74,9 +75,9 @@ public class SchemaManager {
 		newRowNames.put(tableId, 0);
 		columnNames.put(tableId, new HashMap<>());
 		schemaAnnotation.put(tableId, new LinkedHashMap<>());
-		List<String> ret = new ArrayList<>();
+		List<List<String>> ret = new ArrayList<>();
 		for(String columnId : columnIds) {
-			ret.addAll(insertColumn(tableId, columnId));
+			ret.add(insertColumn(tableId, columnId));
 		}
 		return ret;
 	}
@@ -88,7 +89,7 @@ public class SchemaManager {
 		col.put(String.format("%s_%d", columnId, 0), new OnionRDO());
 		col.put(String.format("%s_%d", columnId, 1), new OnionRS());
 		schemaAnnotation.get(tableId).put(columnId, col);
-		columnNames.get(tableId).put(columnId, getRandomString());
+//		columnNames.get(tableId).put(columnId, getRandomString());
 		for(int i = 0; i < 2; i++) {
 			
 			String pName = getRandomString();
@@ -130,18 +131,23 @@ public class SchemaManager {
 	}
 	
 	public String getPhysicalTableName(String tableId) {
+		Util.ensure(tableNames.containsKey(tableId));
 		return tableNames.get(tableId);
 	}
 	
 	public String getPhysicalColumnName(String tableId, String columnId) {
+		Util.ensure(columnNames.containsKey(tableId));
+		Util.ensure(columnNames.get(tableId).containsKey(columnId));
 		return columnNames.get(tableId).get(columnId);
 	}
 	
 	public String getSubcolumnNameFromPhysical(String columnName) {
+		Util.ensure(columnNamesBack.containsKey(columnName));
 		return columnNamesBack.get(columnName);
 	}
 	
 	public String getTableNameFromPhysical(String tableName) {
+		Util.ensure(tableNames.containsKey(tableName));
 		return tableNamesBack.get(tableName);
 	}
 	

@@ -71,5 +71,6 @@ public class ApplicationMain implements PacketHandler {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+		System.exit(0);
 	}
 }

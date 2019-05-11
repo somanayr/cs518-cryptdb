@@ -5,6 +5,8 @@ import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Random;
 
+import cs518.cryptdb.common.Util;
+
 public class CryptoTest {
 	
 	private static Random r = new Random();
@@ -99,15 +101,20 @@ public class CryptoTest {
 	private static void testOPE() {
 		byte[] key = CryptoOPE.generateKey();
 		
-		for (int i = 0; i < 200; i++) {
-			byte[] a = randIv();
-			byte[] b = randIv();
-			a[0] = 0;
-			b[0] = 0;
-			int comp1 = new BigInteger(a).compareTo(new BigInteger(b));
+		for (int i = 0; i < 2000; i++) {
+			int iA = r.nextInt();
+			int iB = r.nextInt();
+			byte[] a = Util.intToBytes(iA - Integer.MIN_VALUE);
+			byte[] b = Util.intToBytes(iB - Integer.MIN_VALUE);
+//			a[0] = 0;
+//			b[0] = 0;
+			int comp1 = ((Integer)iA).compareTo(iB);
 			byte[] cA = CryptoOPE.encrypt(key, a);
 			byte[] cB = CryptoOPE.encrypt(key, b);
 			int comp2 = new BigInteger(cA).compareTo(new BigInteger(cB));
+			System.out.println(comp1 + " == " + comp2);
+			System.out.println(new BigInteger(a) + " comp " + new BigInteger(b));
+			System.out.println(new BigInteger(cA) + " comp " + new BigInteger(cB));
 			ensure(comp2 == comp1);
 			
 		}
