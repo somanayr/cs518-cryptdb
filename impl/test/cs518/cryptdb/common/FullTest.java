@@ -52,7 +52,7 @@ public class FullTest {
 		System.out.println("Setting up App");
 		ApplicationMain am = new ApplicationMain("localhost", proxyPort);
 		System.out.println("Running App");
-		SQLSequenceReader.runApplication("../test_db_reduced/basic_test.sql", am);
+		SQLSequenceReader.runApplication("../test_db_reduced/employees.sql", am);
 		//runApplication(am);
 	}
 	
