@@ -203,6 +203,15 @@ public class SchemaManager {
 		throw new UnsupportedOperationException();
 	}
 	
+	public List<byte[]> encryptAllSubcols(String tableId, String columnId, String rowId, byte[] plaintext) {
+		ArrayList<byte[]> res = new ArrayList<>();
+		for(String subColumn : schemaAnnotation.get(tableId).get(columnId).keySet()) {
+			Onion o = schemaAnnotation.get(tableId).get(columnId).get(subColumn);
+			res.add(o.encrypt(plaintext, tableId, columnId, rowId));
+		}
+		return res;
+	}
+	
 	public void ensureEncryptionSchemes(Map<String, Map<String, CryptoScheme>> schemes) {
 		for(String tableId : schemes.keySet()) {
 			for(String columnId : schemes.get(tableId).keySet()) {

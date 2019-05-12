@@ -53,7 +53,7 @@ public class InsertEncrypted extends InsertDeParser {
         buffer.append(schemaMgr.getPhysicalTableName(tableId));
         
         if (insert.getColumns() != null) {
-            buffer.append(" (ROWID ");
+            buffer.append(" (ROWID, ");
             for (Iterator<Column> iter = insert.getColumns().iterator(); iter.hasNext();) {
                 Column column = iter.next();
                 List<String> subcols = schemaMgr.getAllSubcolumns(tableId, column.getColumnName());
@@ -121,7 +121,7 @@ public class InsertEncrypted extends InsertDeParser {
         for (Iterator<Expression> iter = expressionList.getExpressions().iterator(); iter.hasNext();) {
             Expression expression = iter.next();
             String virtColName = virtColsIter.next();
-            Pair<String, byte[]> encrypted = null;
+            List<byte[]> encryptedList = null;
             if (expression instanceof StringValue) {
             	StringValue sv = (StringValue) expression;
             	StringBuffer temp = new StringBuffer();
@@ -129,14 +129,20 @@ public class InsertEncrypted extends InsertDeParser {
         	        temp.append(sv.getPrefix());
         	    }
         		String op = temp.append(sv.getValue()).toString();
-            	encrypted = schemaMgr.encrypt(tableId, virtColName, rowId, op.getBytes(), CryptoScheme.RND);
+            	encryptedList = schemaMgr.encryptAllSubcols(tableId, virtColName, rowId, op.getBytes());
             } else if (expression instanceof LongValue) {
             	LongValue lv = (LongValue) expression;
         		byte[] plaintext = Util.intToBytes(Integer.parseInt(lv.toString()) - Integer.MIN_VALUE);
-            	encrypted = schemaMgr.encrypt(tableId, virtColName, rowId, plaintext, CryptoScheme.RND);
+            	encryptedList = schemaMgr.encryptAllSubcols(tableId, virtColName, rowId, plaintext);
             }
-        	byte[] base64 = Base64.getEncoder().encode(encrypted.getSecond());
-        	buffer.append("'").append(new String(base64)).append("'");
+            int off = 0;
+            for(byte[] encrypted : encryptedList) {
+	        	byte[] base64 = Base64.getEncoder().encode(encrypted);
+	        	buffer.append("'").append(new String(base64)).append("'");
+	        	if(off != encryptedList.size() - 1)
+	                buffer.append(", ");
+	        	off++;
+	        }
             if (iter.hasNext()) {
                 buffer.append(", ");
             }
