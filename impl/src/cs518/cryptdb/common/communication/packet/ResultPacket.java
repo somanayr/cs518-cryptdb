@@ -3,6 +3,7 @@ package cs518.cryptdb.common.communication.packet;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectOutputStream;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -16,6 +17,7 @@ import cs518.cryptdb.common.Util;
 import cs518.cryptdb.common.crypto.CryptoScheme;
 import cs518.cryptdb.common.pair.Pair;
 import cs518.cryptdb.proxy.SchemaManager;
+import sun.misc.BASE64Decoder;
 
 public class ResultPacket extends Packet {
 	public static final int PACKET_ID = Packet.RESULT_PACKET_ID;
@@ -90,6 +92,46 @@ public class ResultPacket extends Packet {
 				}
 				buf.append('\n');
 			}
+			crs.beforeFirst();
+		} catch(SQLException e) {
+			e.printStackTrace();
+		}
+		String tagString = tag == -1 ? "" : ("(tag=" + tag + ")");
+		return String.format("ResultPacket:%s\n%s", tagString, buf.toString());
+	}
+	
+	public String toHexString() {
+		StringBuffer buf = new StringBuffer();
+		try {
+			CachedRowSet rs = crs;
+			for(int i = 0; i < rs.getMetaData().getColumnCount(); i++) {
+				if(i != 0)
+					buf.append(",");
+				buf.append(rs.getMetaData().getColumnName(i+1));
+				buf.append('(');
+				buf.append(rs.getMetaData().getColumnType(i+1));
+				buf.append(')');
+			}
+			buf.append('\n');
+			while (rs.next()) {
+				for(int i = 1; i < rs.getMetaData().getColumnCount(); i++) {
+					if(i != 0)
+						buf.append(",");
+					buf.append("0x");
+					//buf.append(Util.bytesToHex(rs.getBytes(i+1)));
+					try {
+						InputStream stream = crs.getBinaryStream(i+1);
+						if(stream != null)
+							buf.append(Util.bytesToHex(Util.toByteArray(stream)));
+						else
+							buf.append("null");
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+				buf.append('\n');
+			}
+			crs.beforeFirst();
 		} catch(SQLException e) {
 			e.printStackTrace();
 		}
@@ -109,9 +151,11 @@ public class ResultPacket extends Packet {
 				Pair<String,String> p = sm.getSubcolumnNameFromPhysical(pCol);
 				//String tableId = p.getFirst();
 				String columnId = p.getSecond();
-				byte[] oldVal = crs.getBytes(i+1);
+				//byte[] oldVal = crs.getBytes(i+1);
 				//byte[] oldVal = Util.toByteArray(crs.getBinaryStream(i+1));
-	        	System.out.println("Received 0x" + Util.bytesToHex(oldVal));
+				byte[] oldVal = new BASE64Decoder().decodeBuffer(crs.getString(i+1));
+	        	System.out.println("Received (" + pTable + "/" + pCol + ") 0x" + Util.bytesToHex(oldVal));
+            	System.out.println("Params: " + tableId + ", " + columnId + ", " + rowId);
 				byte[] newVal = sm.decrypt(tableId, columnId, rowId, oldVal);
 				crs.updateBinaryStream(pCol, new ByteArrayInputStream(newVal));
 			}

@@ -86,7 +86,8 @@ public class CreateEncryptedTable extends CreateTableDeParser {
                     for(String subcol : subcols) {
 	                    buffer.append(schemaMgr.getPhysicalColumnName(tblName, subcol));
 	                    buffer.append(" ");
-	                    buffer.append("VARBINARY(1000000)"); // because we're using H2 and storing everything as byte[]
+//	                    buffer.append("VARBINARY(1000000)"); // because we're using H2 and storing everything as byte[]
+	                    buffer.append("VARCHAR(1000000)"); // because apparently H2 is incapable of reading anything worth putting into VARBINARY
 	                    if (columnDefinition.getColumnSpecStrings() != null) {
 	                        for (String s : columnDefinition.getColumnSpecStrings()) {
 	                            buffer.append(" ");

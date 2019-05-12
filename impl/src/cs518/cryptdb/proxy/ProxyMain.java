@@ -34,6 +34,7 @@ public class ProxyMain implements PacketHandler {
 	
 	@Override
 	public void handlePacket(Packet p) {
+		System.out.println("Proxy: Got new packet: " + p);
 		if (p instanceof QueryPacket) {
 			try {
 				QueryPacket qp = (QueryPacket) p;

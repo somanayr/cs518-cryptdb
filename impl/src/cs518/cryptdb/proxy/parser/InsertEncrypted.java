@@ -1,5 +1,6 @@
 package cs518.cryptdb.proxy.parser;
 
+import java.math.BigInteger;
 import java.util.Base64;
 import java.util.Iterator;
 import java.util.List;
@@ -117,6 +118,7 @@ public class InsertEncrypted extends InsertDeParser {
         buffer.append(rowId);
     	List<String> virtualColumns = schemaMgr.getVirtualColumns(tableId);
     	Iterator<String> virtColsIter = virtualColumns.iterator();
+    	virtColsIter.next(); //Skip ROWID
         buffer.append(", ");
         for (Iterator<Expression> iter = expressionList.getExpressions().iterator(); iter.hasNext();) {
             Expression expression = iter.next();
@@ -138,10 +140,13 @@ public class InsertEncrypted extends InsertDeParser {
             int off = 0;
             for(byte[] encrypted : encryptedList) {
 	        	String hex = Util.bytesToHex(encrypted);
-	        	buffer.append("0x").append(hex);
-	        	System.out.println("Inserting 0x" + hex);
-	        	//byte[] base64 = Base64.getEncoder().encode(encrypted);
-	        	//buffer.append("'").append(new String(base64)).append("'");
+	        	System.out.println("Inserting 0x" + hex); //FIXME we need to find a way to insert binary data -- hex values only work up to 0x7AAAAAAA
+            	System.out.println("Params: " + tableId + ", " + virtColName + "_" + off + ", " + rowId);
+            	System.out.println("Decrypted: " + new String(schemaMgr.decrypt(tableId, virtColName + "_" + off, rowId, encrypted)));
+            	//buffer.append(new BigInteger(encrypted));
+	        	//buffer.append("0x").append(hex);
+	        	byte[] base64 = Base64.getEncoder().encode(encrypted);
+	        	buffer.append("'").append(new String(base64)).append("'");
 	        	if(off != encryptedList.size() - 1)
 	                buffer.append(", ");
 	        	off++;

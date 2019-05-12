@@ -26,13 +26,16 @@ public class DatabaseMain implements PacketHandler {
 
 	@Override
 	public void handlePacket(Packet p) {
+		System.out.println("Database: got packet " + p);
 		if(p instanceof QueryPacket) {
 			try {
 				Packet response;
 				QueryPacket qp = (QueryPacket) p;
 				String stmt = qp.getQuery();
 				if(EncryptedDatabase.isQuery(stmt)) {
-					response = new ResultPacket(EncryptedDatabase.executeQuery(stmt), qp.getTag());
+					ResultPacket rp = new ResultPacket(EncryptedDatabase.executeQuery(stmt), qp.getTag());
+					response = rp;
+					System.out.println("Database: sending results: " + rp.toString());
 				} else {
 					response = new StatusPacket(EncryptedDatabase.executeUpdate(stmt), qp.getTag());
 				}
