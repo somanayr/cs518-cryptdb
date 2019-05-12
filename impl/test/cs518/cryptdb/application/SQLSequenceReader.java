@@ -10,6 +10,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import cs518.cryptdb.common.Profiling;
+
 public class SQLSequenceReader {
 	
 	private static String lineComment = "^(.*?)--.*$";
@@ -18,9 +20,12 @@ public class SQLSequenceReader {
 	public static void runApplication(String sqlFile, ApplicationMain am) throws IOException {
 		List<String> l = readSQLFile(sqlFile);
 		
+		Profiling.startTimer("Run time");
 		for(String s : l) {
+			Profiling.startTimer("Latency");
 			System.out.println("Next statement: " + s);
 			am.sendStatement(s);
+			Profiling.stopTimer("Latency");
 		}
 	}
 	

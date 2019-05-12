@@ -66,9 +66,7 @@ public class ApplicationMain implements PacketHandler {
 			ApplicationMain am = new ApplicationMain(args[0], Integer.parseInt(args[1]));
 			System.out.println("Started application. Running queries.");
 			SQLSequenceReader.runApplication(args[2], am);
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (SQLException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		System.exit(0);

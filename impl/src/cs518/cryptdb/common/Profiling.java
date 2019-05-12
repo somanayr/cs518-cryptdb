@@ -7,10 +7,10 @@ import java.util.List;
 
 public class Profiling {
 	
-	private static HashMap<String, Long> timerStart;
-	private static HashMap<String, Long> timerVal;
+	private static HashMap<String, Long> timerStart = new HashMap<>();
+	private static HashMap<String, Long> timerVal = new HashMap<>();
 	
-	public static HashMap<String, List<Long>> timerHistory;
+	public static HashMap<String, List<Long>> timerHistory = new HashMap<>();
 	
 	static {
 		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {

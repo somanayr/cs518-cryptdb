@@ -47,7 +47,7 @@ public class Database {
 					e.printStackTrace();
 				}
 			}
-		}).start(); //Do we actually need this??
+		});//.start(); //Do we actually need this??
 		
 		Connection conn = DriverManager.
 				getConnection("jdbc:h2:mem:test;MODE=MySQL;", "sa", "");

@@ -11,7 +11,7 @@ import cs518.cryptdb.database.DatabaseMain;
 import cs518.cryptdb.proxy.ProxyMain;
 
 public class FullTest {
-	public static void main(String[] args) throws Exception{
+	public static void main(String[] args){
 		System.out.println(System.getProperty("javax.sql.rowset.RowSetFactory"));
 		PrintStream sysout = System.out;
 //		File outfile = new File("output/out.txt");
@@ -20,9 +20,16 @@ public class FullTest {
 //		outfile.createNewFile();
 //		System.setOut(new PrintStream(outfile));
 		
-		//directTest();
-		proxyTest();
-		sysout.println("Finished");
+		try {
+			proxyTest();
+			//directTest();
+			sysout.println("Finished");
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			sysout.println("Failed");
+		}
+		System.exit(0);
 	}
 	
 	public static void directTest() throws Exception {
