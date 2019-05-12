@@ -39,9 +39,11 @@ public class EncryptExpression extends ExpressionDeParser {
 	
 	@Override
 	public void visit(Column col) {
-		if (table.getFullyQualifiedName() == null)
-			throw new RuntimeException();
-		String encryptedCol = schemaMgr.getPhysicalColumnName(table.getFullyQualifiedName(), col.getColumnName());
+		this.columnId = col.getFullyQualifiedName();
+		this.tableId = table.getFullyQualifiedName();
+		String subCol = schemaMgr.getSubcolumnForScheme(table.getFullyQualifiedName(),
+														col.getFullyQualifiedName(), CryptoScheme.DET);
+		String encryptedCol = schemaMgr.getPhysicalColumnName(table.getFullyQualifiedName(), subCol);
 		this.getBuffer().append(encryptedCol);
 	}
 		
@@ -54,7 +56,7 @@ public class EncryptExpression extends ExpressionDeParser {
 		String op = temp.append(stringValue.getValue()).toString();
 		// TODO: how to get table, column, row info from just a stringValue?
 		Pair<String, byte[]> encrypted = schemaMgr.encrypt(this.tableId, this.columnId,
-				this.rowId, op.getBytes(), cryptoScheme);
+				null, op.getBytes(), CryptoScheme.DET);
 	    buffer.append("'").append(new String(encrypted.getSecond())).append("'");
 	}
 	
