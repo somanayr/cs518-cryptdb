@@ -1,5 +1,7 @@
 package cs518.cryptdb.proxy.parser;
 
+import java.util.Base64;
+
 import cs518.cryptdb.common.Util;
 import cs518.cryptdb.common.crypto.CryptoScheme;
 import cs518.cryptdb.common.pair.Pair;
@@ -12,7 +14,7 @@ import net.sf.jsqlparser.statement.select.SelectVisitor;
 import net.sf.jsqlparser.util.deparser.ExpressionDeParser;
 
 public class EncryptExpression extends ExpressionDeParser {
-	protected StringBuilder buffer = new StringBuilder();
+	protected StringBuilder buffer;
 	private SelectVisitor selectVisitor;
 	private CryptoScheme cryptoScheme;
 	private SchemaManager schemaMgr;
@@ -37,6 +39,10 @@ public class EncryptExpression extends ExpressionDeParser {
 		this.rowId = rowId;
 	}
 	
+	public void setBuffer(StringBuilder buffer) {
+		this.buffer = buffer;
+	}
+	
 	@Override
 	public void visit(Column col) {
 		this.columnId = col.getFullyQualifiedName();
@@ -57,7 +63,9 @@ public class EncryptExpression extends ExpressionDeParser {
 		// TODO: how to get table, column, row info from just a stringValue?
 		Pair<String, byte[]> encrypted = schemaMgr.encrypt(this.tableId, this.columnId,
 				null, op.getBytes(), CryptoScheme.DET);
-	    buffer.append("'").append(new String(encrypted.getSecond())).append("'");
+		byte[] base64 = Base64.getEncoder().encode(encrypted.getSecond());
+		String ciphertext = new String(base64);
+	    buffer.append("'").append(ciphertext).append("'");
 	}
 	
 	public void setSchemaManager(SchemaManager schemaMgr) {

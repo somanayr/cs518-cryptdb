@@ -11,13 +11,13 @@ import net.sf.jsqlparser.util.deparser.OrderByDeParser;
 
 public class DeleteEncrypted extends DeleteDeParser {
 	
-	protected StringBuilder buffer = new StringBuilder();
+	protected StringBuilder buffer;
     private ExpressionVisitor expressionVisitor;
     private SchemaManager schemaMgr;
 	
 	public DeleteEncrypted(ExpressionVisitor expressionVisitor, StringBuilder buffer, SchemaManager schemaMgr) {
 		super(expressionVisitor, buffer);
-		this.buffer = buffer;
+		this.buffer = new StringBuilder();
         this.expressionVisitor = expressionVisitor;
         this.schemaMgr = schemaMgr;
 	}
@@ -26,6 +26,7 @@ public class DeleteEncrypted extends DeleteDeParser {
 		if (!(expressionVisitor instanceof EncryptExpression))
 			return;
 		EncryptExpression encryptExpression = (EncryptExpression) expressionVisitor;
+		encryptExpression.setBuffer(buffer);
         buffer.append("DELETE");
         
         // no. you can only delete from one table.
@@ -39,7 +40,6 @@ public class DeleteEncrypted extends DeleteDeParser {
         
         encryptExpression.updateEncryption(delete.getTable(), null, null);
         buffer.append(" FROM ").append(schemaMgr.getPhysicalTableName(delete.getTable().getFullyQualifiedName()));
-        System.out.println(schemaMgr.getPhysicalTableName(delete.getTable().getFullyQualifiedName()));
 
         if (delete.getJoins() != null) {
             for (Join join : delete.getJoins()) {
