@@ -203,6 +203,16 @@ public class SchemaManager {
 		throw new UnsupportedOperationException();
 	}
 	
+	public String getSubcolumnForScheme(String tableId, String columnId, String rowId, byte[] plaintext, CryptoScheme scheme) {
+		for(String subColumn : schemaAnnotation.get(tableId).get(columnId).keySet()) {
+			Onion o = schemaAnnotation.get(tableId).get(columnId).get(subColumn);
+			if(o.canHandle(scheme)) {
+				return subColumn;
+			}
+		}
+		throw new UnsupportedOperationException();
+	}
+	
 	public List<byte[]> encryptAllSubcols(String tableId, String columnId, String rowId, byte[] plaintext) {
 		ArrayList<byte[]> res = new ArrayList<>();
 		for(String subColumn : schemaAnnotation.get(tableId).get(columnId).keySet()) {

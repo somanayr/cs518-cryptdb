@@ -28,11 +28,14 @@ public class DatabaseTest {
 		stmt.close();
 		
 		stmt=conn.createStatement();
-		stmt.executeUpdate("insert into HIKES values (0x7AAAAAAA)"); //FIXME this is the problem
+		stmt.executeUpdate("insert into HIKES values (0x8AAAAAAA)"); //FIXME this is the problem
+		stmt.executeUpdate("insert into HIKES values ('0x8AAAAAAA')"); //FIXME this is the problem
 		stmt.close();
 		
 		stmt=conn.createStatement();
 		ResultSet rs = stmt.executeQuery("select * from HIKES");
+		rs.next();
+		System.out.println(Util.bytesToHex(rs.getBytes(1)));
 		rs.next();
 		System.out.println(Util.bytesToHex(rs.getBytes(1)));
 		stmt.close();
