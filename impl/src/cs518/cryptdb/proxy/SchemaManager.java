@@ -243,7 +243,7 @@ public class SchemaManager {
 	private void sendDeOnion(List<Pair<CryptoScheme, byte[]>> l, String tableId, String columnId, String subColumnId) {
 		try {
 			for(Pair<CryptoScheme, byte[]> p : l)
-				io.sendPacket(PacketIO.PARENT_ID, new DeOnionPacket(p.getFirst(), p.getSecond(), tableId, subColumnId));
+				io.sendPacket(PacketIO.PARENT_ID, new DeOnionPacket(p.getFirst(), p.getSecond(), getPhysicalTableName(tableId), getPhysicalColumnName(tableId, subColumnId)));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
