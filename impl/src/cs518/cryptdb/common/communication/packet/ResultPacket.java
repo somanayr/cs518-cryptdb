@@ -18,6 +18,7 @@ import cs518.cryptdb.common.crypto.CryptoScheme;
 import cs518.cryptdb.common.pair.Pair;
 import cs518.cryptdb.proxy.SchemaManager;
 import sun.misc.BASE64Decoder;
+import sun.misc.BASE64Encoder;
 
 public class ResultPacket extends Packet {
 	public static final int PACKET_ID = Packet.RESULT_PACKET_ID;
@@ -153,11 +154,14 @@ public class ResultPacket extends Packet {
 				String columnId = p.getSecond();
 				//byte[] oldVal = crs.getBytes(i+1);
 				//byte[] oldVal = Util.toByteArray(crs.getBinaryStream(i+1));
-				byte[] oldVal = new BASE64Decoder().decodeBuffer(crs.getString(i+1));
-	        	System.out.println("Received (" + pTable + "/" + pCol + ") 0x" + Util.bytesToHex(oldVal));
-            	System.out.println("Params: " + tableId + ", " + columnId + ", " + rowId);
-				byte[] newVal = sm.decrypt(tableId, columnId, rowId, oldVal);
-				crs.updateBinaryStream(pCol, new ByteArrayInputStream(newVal));
+				String oldStr = crs.getString(i+1);
+				if(oldStr != null) {
+					byte[] oldVal = new BASE64Decoder().decodeBuffer(oldStr);
+		        	System.out.println("Received (" + pTable + "/" + pCol + ") 0x" + Util.bytesToHex(oldVal));
+	            	System.out.println("Params: " + tableId + ", " + columnId + ", " + rowId);
+					byte[] newVal = sm.decrypt(tableId, columnId, rowId, oldVal);
+					crs.updateString(pCol, new String(newVal));//new BASE64Encoder().encode(newVal));
+				}
 			}
 		}
 		

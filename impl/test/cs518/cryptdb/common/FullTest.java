@@ -12,6 +12,7 @@ import cs518.cryptdb.proxy.ProxyMain;
 
 public class FullTest {
 	public static void main(String[] args) throws Exception{
+		System.out.println(System.getProperty("javax.sql.rowset.RowSetFactory"));
 		PrintStream sysout = System.out;
 //		File outfile = new File("output/out.txt");
 //		if(outfile.exists())
