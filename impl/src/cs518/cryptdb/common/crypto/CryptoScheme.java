@@ -23,7 +23,7 @@ public enum CryptoScheme {
 			return CryptoSEARCH.decrypt(key, ciphertext);
 		case RND:
 			byte[] iv = CryptoRND.getIV(tableId, columnId, rowId);
-			Logger.getLogger("CryptoScheme").log(Level.INFO, String.format("Decrypting RND with params: 0x%s,0x%s", Util.bytesToHex(key), Util.bytesToHex(iv)));
+			//Logger.getLogger("CryptoScheme").log(Level.INFO, String.format("Decrypting RND with params: 0x%s,0x%s", Util.bytesToHex(key), Util.bytesToHex(iv)));
 			return CryptoRND.decrypt(key, iv, ciphertext);
 		default:
 			return null;

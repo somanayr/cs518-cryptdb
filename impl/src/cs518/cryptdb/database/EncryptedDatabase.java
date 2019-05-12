@@ -55,7 +55,7 @@ public class EncryptedDatabase {
 				byte[] oldVal = Util.base64Decode(rs.getString(columnId));
 				byte[] newVal = CryptoScheme.decrypt(scheme, key, tableId, columnId, rs.getString("ROWID"), oldVal);
 				rs.updateString(columnId, Util.base64Encode(newVal));
-				Logger.getLogger("EncryptedDB").log(Level.INFO, String.format("Decrypted %s,%s,%s;%s->%s", tableId, columnId, rs.getString("ROWID"),Util.bytesToHex(oldVal), Util.bytesToHex(newVal)));
+//				Logger.getLogger("EncryptedDB").log(Level.INFO, String.format("Decrypted %s,%s,%s;%s->%s", tableId, columnId, rs.getString("ROWID"),Util.bytesToHex(oldVal), Util.bytesToHex(newVal)));
 				rs.updateRow();
 			}
 			closeStatement();

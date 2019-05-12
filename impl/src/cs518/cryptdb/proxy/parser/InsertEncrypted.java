@@ -134,7 +134,8 @@ public class InsertEncrypted extends InsertDeParser {
             	encryptedList = schemaMgr.encryptAllSubcols(tableId, virtColName, rowId, op.getBytes());
             } else if (expression instanceof LongValue) {
             	LongValue lv = (LongValue) expression;
-        		byte[] plaintext = Util.intToBytes(Integer.parseInt(lv.toString()) - Integer.MIN_VALUE);
+        		//byte[] plaintext = Util.intToBytes(Integer.parseInt(lv.toString()) - Integer.MIN_VALUE);
+            	byte[] plaintext = String.format("%08x", Integer.parseInt(lv.toString()) - Integer.MIN_VALUE).getBytes();
             	encryptedList = schemaMgr.encryptAllSubcols(tableId, virtColName, rowId, plaintext);
             }
             int off = 0;

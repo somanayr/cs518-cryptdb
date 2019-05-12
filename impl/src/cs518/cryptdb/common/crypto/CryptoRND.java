@@ -20,7 +20,7 @@ import sun.misc.BASE64Encoder;
 public class CryptoRND {
 	
 	public static byte[] getIV(String tableId, String columnId, String rowId) {
-		Logger.getLogger("CryptoScheme").log(Level.INFO, String.format("IV built from %s,%s,%s", tableId, columnId, rowId));
+		//Logger.getLogger("CryptoScheme").log(Level.INFO, String.format("IV built from %s,%s,%s", tableId, columnId, rowId));
 		MessageDigest digest;
 		try {
 			digest = MessageDigest.getInstance("SHA-256");

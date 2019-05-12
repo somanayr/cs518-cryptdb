@@ -33,7 +33,7 @@ public class OnionRDO extends Onion{
 	
 	public static byte[] encryptToRND(byte[] keyRND, byte[] ivRND, byte[] keyDET, byte[] keyOPE, byte[] plaintext) {
 		byte[] res = encryptRND(keyRND, ivRND, encryptDET(keyDET, encryptOPE(keyOPE, plaintext)));
-		Logger.getLogger("Proxy").info("Would have encrypted DET to: 0x" + Util.bytesToHex(encryptDET(keyDET, encryptOPE(keyOPE, plaintext))) + "\nWhich after decryption is: 0x" + Util.bytesToHex(decryptRND(keyRND, ivRND, res)) + "\nDecyprt params: 0x" + Util.bytesToHex(keyRND) + ", 0x" + Util.bytesToHex(ivRND));
+		//Logger.getLogger("Proxy").info("Would have encrypted OPE to: 0x" + Util.bytesToHex(encryptOPE(keyOPE, plaintext)));
 		return res;
 	}
 	

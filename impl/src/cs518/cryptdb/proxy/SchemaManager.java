@@ -256,4 +256,8 @@ public class SchemaManager {
 		newRowNames.put(tableName, id+1);
 		return "" + id;
 	}
+
+	public String getColumnForSubcolumn(String columnId) {
+		return columnId.substring(0, columnId.lastIndexOf('_'));
+	}
 }

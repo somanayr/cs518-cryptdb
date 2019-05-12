@@ -48,4 +48,10 @@ public class QueryPacket extends Packet{
 		this.tag = tag;
 	}
 	
+	public String toString() {
+		String queryStripped = query.length() > 200 ? query.substring(0,197) + "..." : query;
+		String tagString = tag == -1 ? "" : (" (tag=" + tag + ")");
+		return String.format("QueryPacket%s: %s", tagString, queryStripped);
+	}
+	
 }

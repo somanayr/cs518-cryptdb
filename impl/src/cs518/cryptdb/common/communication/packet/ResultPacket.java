@@ -131,6 +131,10 @@ public class ResultPacket extends Packet {
 					}
 				}
 				buf.append('\n');
+				if(buf.length() > 300) {
+					buf.append("...");
+					break;
+				}
 			}
 			crs.beforeFirst();
 		} catch(SQLException e) {
@@ -157,8 +161,8 @@ public class ResultPacket extends Packet {
 				String oldStr = crs.getString(i+1);
 				if(oldStr != null) {
 					byte[] oldVal = new BASE64Decoder().decodeBuffer(oldStr);
-		        	System.out.println("Received (" + pTable + "/" + pCol + ") 0x" + Util.bytesToHex(oldVal));
-	            	System.out.println("Params: " + tableId + ", " + columnId + ", " + rowId);
+//		        	System.out.println("Received (" + pTable + "/" + pCol + ") 0x" + Util.bytesToHex(oldVal));
+//	            	System.out.println("Params: " + tableId + ", " + columnId + ", " + rowId);
 					byte[] newVal = sm.decrypt(tableId, columnId, rowId, oldVal);
 					crs.updateString(pCol, new String(newVal));//new BASE64Encoder().encode(newVal));
 				}
@@ -175,6 +179,7 @@ public class ResultPacket extends Packet {
 			Pair<String,String> p = sm.getSubcolumnNameFromPhysical(pCol);
 			//String tableId = p.getFirst();
 			String columnId = p.getSecond();
+			columnId = sm.getColumnForSubcolumn(columnId);
 			
 			rsmdi.setTableName(i+1, tableId);
 			rsmdi.setColumnName(i+1, columnId);

@@ -55,13 +55,13 @@ public class DatabaseTest {
 		stmt.close();
 		
 		stmt=conn.createStatement();
-		s = "insert into TESTTABLE values (1, 0x7AAAAAAA)";
+		s = "insert into TESTTABLE values (1, 0x7FFFFFFF)";
 		System.out.println(s);
 		stmt.executeUpdate(s); //FIXME this is the problem
 		stmt.close();
 		
 		stmt=conn.createStatement();
-		s = "insert into TESTTABLE values (2, 0x8AAAAAAA)";
+		s = "insert into TESTTABLE values (2, 0x80000000)";
 		System.out.println(s);
 		stmt.executeUpdate(s); //FIXME this is the problem
 		stmt.close();
