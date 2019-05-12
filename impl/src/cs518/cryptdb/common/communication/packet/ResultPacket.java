@@ -109,7 +109,9 @@ public class ResultPacket extends Packet {
 				Pair<String,String> p = sm.getSubcolumnNameFromPhysical(pCol);
 				//String tableId = p.getFirst();
 				String columnId = p.getSecond();
-				byte[] oldVal = Util.toByteArray(crs.getBinaryStream(i+1));
+				byte[] oldVal = crs.getBytes(i+1);
+				//byte[] oldVal = Util.toByteArray(crs.getBinaryStream(i+1));
+	        	System.out.println("Received 0x" + Util.bytesToHex(oldVal));
 				byte[] newVal = sm.decrypt(tableId, columnId, rowId, oldVal);
 				crs.updateBinaryStream(pCol, new ByteArrayInputStream(newVal));
 			}

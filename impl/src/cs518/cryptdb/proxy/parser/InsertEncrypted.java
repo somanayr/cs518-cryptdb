@@ -1,4 +1,4 @@
-package cs518.cryptdb.parser;
+package cs518.cryptdb.proxy.parser;
 
 import java.util.Base64;
 import java.util.Iterator;
@@ -137,8 +137,11 @@ public class InsertEncrypted extends InsertDeParser {
             }
             int off = 0;
             for(byte[] encrypted : encryptedList) {
-	        	byte[] base64 = Base64.getEncoder().encode(encrypted);
-	        	buffer.append("'").append(new String(base64)).append("'");
+	        	String hex = Util.bytesToHex(encrypted);
+	        	buffer.append("0x").append(hex);
+	        	System.out.println("Inserting 0x" + hex);
+	        	//byte[] base64 = Base64.getEncoder().encode(encrypted);
+	        	//buffer.append("'").append(new String(base64)).append("'");
 	        	if(off != encryptedList.size() - 1)
 	                buffer.append(", ");
 	        	off++;

@@ -1,4 +1,4 @@
-package cs518.cryptdb.parser;
+package cs518.cryptdb.proxy.parser;
 
 import cs518.cryptdb.common.Util;
 import cs518.cryptdb.common.crypto.CryptoScheme;

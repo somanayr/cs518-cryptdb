@@ -1,4 +1,4 @@
-package cs518.cryptdb.parser;
+package cs518.cryptdb.proxy.parser;
 
 import java.util.Map;
 
