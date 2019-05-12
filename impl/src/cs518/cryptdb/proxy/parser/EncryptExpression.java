@@ -54,6 +54,7 @@ public class EncryptExpression extends ExpressionDeParser {
 	public void visit(Column col) {
 		this.columnId = col.getFullyQualifiedName();
 		this.tableId = table.getFullyQualifiedName();
+		this.tableId = Util.stripBackticks(tableId);
 		String subCol = schemaMgr.getSubcolumnForScheme(table.getFullyQualifiedName(),
 														col.getFullyQualifiedName(), CryptoScheme.DET);
 		String encryptedCol = schemaMgr.getPhysicalColumnName(table.getFullyQualifiedName(), subCol);

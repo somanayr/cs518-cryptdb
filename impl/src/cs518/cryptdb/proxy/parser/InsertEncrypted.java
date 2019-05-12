@@ -51,6 +51,7 @@ public class InsertEncrypted extends InsertDeParser {
         buffer.append("INTO ");
         
         tableId = insert.getTable().getFullyQualifiedName();
+        tableId = Util.stripBackticks(tableId);
         buffer.append(schemaMgr.getPhysicalTableName(tableId));
         
         if (insert.getColumns() != null) {
