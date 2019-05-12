@@ -15,3 +15,5 @@ Included as a submodule
 Until we decide on a license, all source code is all rights reserved, except functions which are explicitly mentioned in comments as sourced externally.
 
 jar-in-jar-loader.zip is unmodified from its original state, and is licensed under the Eclipse Public License, which can be found here https://www.eclipse.org/legal/epl-v10.html
+
+Some code from the cs518.cryptdb.proxy.parser is from JSqlParser, which is licensed under Apache v2. We publish all code in that folder under the Apache v2 license.
