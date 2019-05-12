@@ -40,6 +40,9 @@ public class SelectEncrypted extends SelectDeParser {
     	if (!(fromItem instanceof Table)) {
     		return;	// we only accept one table
     	}
+    	Table table = (Table) fromItem;
+    	EncryptExpression ee = (EncryptExpression) expressionVisitor;
+    	ee.updateEncryption(table, null, null);
     	
         if (plainSelect.isUseBrackets()) {
             buffer.append("(");
