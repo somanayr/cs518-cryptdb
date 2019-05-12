@@ -49,7 +49,7 @@ public class SQLSequenceReader {
 						} else if(command.equals("flush")){
 							//nop
 						} else {
-							al.add(statement);
+							al.add(statement); //FIXME + ';' ???
 						}
 						seq = new StringBuffer();
 					} else {
