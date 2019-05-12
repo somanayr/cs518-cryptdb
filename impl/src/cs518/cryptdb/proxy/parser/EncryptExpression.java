@@ -8,6 +8,8 @@ import cs518.cryptdb.common.pair.Pair;
 import cs518.cryptdb.proxy.SchemaManager;
 import net.sf.jsqlparser.expression.LongValue;
 import net.sf.jsqlparser.expression.StringValue;
+import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
+import net.sf.jsqlparser.expression.operators.relational.OldOracleJoinBinaryExpression;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.SelectVisitor;
@@ -28,6 +30,7 @@ public class EncryptExpression extends ExpressionDeParser {
 	}
 		
 	public EncryptExpression(SelectVisitor selectVisitor, StringBuilder buffer) {
+		super(selectVisitor, buffer);
 		this.buffer = buffer;
 		this.selectVisitor = selectVisitor;
 		this.cryptoScheme = CryptoScheme.DET;
@@ -43,6 +46,10 @@ public class EncryptExpression extends ExpressionDeParser {
 		this.buffer = buffer;
 	}
 	
+	public void setSchemaManager(SchemaManager schemaMgr) {
+		this.schemaMgr = schemaMgr;
+	}
+	
 	@Override
 	public void visit(Column col) {
 		this.columnId = col.getFullyQualifiedName();
@@ -50,7 +57,8 @@ public class EncryptExpression extends ExpressionDeParser {
 		String subCol = schemaMgr.getSubcolumnForScheme(table.getFullyQualifiedName(),
 														col.getFullyQualifiedName(), CryptoScheme.DET);
 		String encryptedCol = schemaMgr.getPhysicalColumnName(table.getFullyQualifiedName(), subCol);
-		this.getBuffer().append(encryptedCol);
+		System.out.println("encryptedCol: " + encryptedCol);
+		buffer.append(encryptedCol);
 	}
 		
 	@Override
@@ -68,8 +76,21 @@ public class EncryptExpression extends ExpressionDeParser {
 	    buffer.append("'").append(ciphertext).append("'");
 	}
 	
-	public void setSchemaManager(SchemaManager schemaMgr) {
-		this.schemaMgr = schemaMgr;
-	}
+	
+	@Override
+	public void visitOldOracleJoinBinaryExpression(OldOracleJoinBinaryExpression expression, String operator) {
+//      if (expression.isNot()) {
+//          buffer.append(NOT);
+//      }
+      expression.getLeftExpression().accept(this);
+      if (expression.getOldOracleJoinSyntax() == EqualsTo.ORACLE_JOIN_RIGHT) {
+          buffer.append("(+)");
+      }
+      buffer.append(operator);
+      expression.getRightExpression().accept(this);
+      if (expression.getOldOracleJoinSyntax() == EqualsTo.ORACLE_JOIN_LEFT) {
+          buffer.append("(+)");
+      }
+  }
 		
 }	

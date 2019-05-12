@@ -37,7 +37,6 @@ public class SelectEncrypted extends SelectDeParser {
     @Override
     public void visit(PlainSelect plainSelect) {
     	FromItem fromItem = plainSelect.getFromItem();
-    	System.out.println(fromItem.getClass());
     	if (!(fromItem instanceof Table)) {
     		return;	// we only accept one table
     	}

@@ -14,6 +14,7 @@ public class DeleteEncrypted extends DeleteDeParser {
 	protected StringBuilder buffer;
     private ExpressionVisitor expressionVisitor;
     private SchemaManager schemaMgr;
+    public String finalOP;
 	
 	public DeleteEncrypted(ExpressionVisitor expressionVisitor, StringBuilder buffer, SchemaManager schemaMgr) {
 		super(expressionVisitor, buffer);
@@ -53,15 +54,11 @@ public class DeleteEncrypted extends DeleteDeParser {
 
         if (delete.getWhere() != null) {
             buffer.append(" WHERE ");
+    		encryptExpression.setBuffer(buffer);
             delete.getWhere().accept(expressionVisitor);	// hopefully this works without further mods to EncryptExp
         }
 
-        if (delete.getOrderByElements() != null) {
-            new OrderByDeParser(expressionVisitor, buffer).deParse(delete.getOrderByElements());
-        }
-        if (delete.getLimit() != null) {
-            new LimitDeparser(buffer).deParse(delete.getLimit());
-        }
+        finalOP = buffer.toString();
 
     }
 	

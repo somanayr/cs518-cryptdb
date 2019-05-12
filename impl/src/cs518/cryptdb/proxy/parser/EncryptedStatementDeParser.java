@@ -30,6 +30,11 @@ public class EncryptedStatementDeParser extends StatementDeParser {
 	}
 	
 	@Override
+	public StringBuilder getBuffer() {
+		return this.buffer;
+	}
+	
+	@Override
 	public void visit(CreateTable createTable) {
 		CreateEncryptedTable createTableDeParser = new CreateEncryptedTable(this, buffer, schemaMgr);
         createTableDeParser.deParse(createTable);
@@ -73,6 +78,8 @@ public class EncryptedStatementDeParser extends StatementDeParser {
         selectDeParser.setExpressionVisitor(expressionDeParser);
         DeleteEncrypted deleteDeParser = new DeleteEncrypted(expressionDeParser, buffer, schemaMgr);
         deleteDeParser.deParse(delete);
+        System.out.println("delete finished: " + deleteDeParser.finalOP);
+        buffer = new StringBuilder(deleteDeParser.finalOP);
     }
 	
 }
