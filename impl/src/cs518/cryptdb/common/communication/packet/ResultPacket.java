@@ -14,6 +14,7 @@ import javax.sql.rowset.RowSetProvider;
 
 import cs518.cryptdb.common.Util;
 import cs518.cryptdb.common.crypto.CryptoScheme;
+import cs518.cryptdb.common.pair.Pair;
 import cs518.cryptdb.proxy.SchemaManager;
 
 public class ResultPacket extends Packet {
@@ -105,7 +106,9 @@ public class ResultPacket extends Packet {
 				String pCol = crs.getMetaData().getColumnName(i+1);
 				if(pCol.equals("ROWID")) 
 					continue;
-				String columnId = sm.getSubcolumnNameFromPhysical(pCol);
+				Pair<String,String> p = sm.getSubcolumnNameFromPhysical(pCol);
+				//String tableId = p.getFirst();
+				String columnId = p.getSecond();
 				byte[] oldVal = Util.toByteArray(crs.getBinaryStream(i+1));
 				byte[] newVal = sm.decrypt(tableId, columnId, rowId, oldVal);
 				crs.updateBinaryStream(pCol, new ByteArrayInputStream(newVal));
@@ -119,7 +122,9 @@ public class ResultPacket extends Packet {
 			String pCol = crs.getMetaData().getColumnName(i+1);
 			if(pCol.equals("ROWID")) 
 				continue;
-			String columnId = sm.getSubcolumnNameFromPhysical(pCol);
+			Pair<String,String> p = sm.getSubcolumnNameFromPhysical(pCol);
+			//String tableId = p.getFirst();
+			String columnId = p.getSecond();
 			
 			rsmdi.setTableName(i+1, tableId);
 			rsmdi.setColumnName(i+1, columnId);

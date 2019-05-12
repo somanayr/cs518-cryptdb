@@ -13,6 +13,7 @@ import java.util.Set;
 import cs518.cryptdb.common.Util;
 import cs518.cryptdb.common.communication.PacketIO;
 import cs518.cryptdb.common.communication.packet.DeOnionPacket;
+import cs518.cryptdb.common.crypto.CryptoDET;
 import cs518.cryptdb.common.crypto.CryptoRND;
 import cs518.cryptdb.common.crypto.CryptoScheme;
 import cs518.cryptdb.common.crypto.Onion;
@@ -29,6 +30,8 @@ public class SchemaManager {
 	 */
 	private static final char[] CHARSET = ("abcdefghijklmnopqrstuvwxyz".toUpperCase()).toCharArray();
 	private static final int NUMCHARS = 10;
+	
+	private static final boolean RANDOMIZE_COL = true; //false encrypts column names, true picks random names 
 	
 	private String getRandomString() {
 		Random r = new Random();
@@ -52,7 +55,7 @@ public class SchemaManager {
 	private Map<String,String> tableNamesBack = new HashMap<>();
 	private Map<String,Integer> newRowNames = new HashMap<>();
 	private Map<String,Map<String,String>> columnNames = new HashMap<>();
-	private Map<String,String> columnNamesBack = new HashMap<>();
+	private Map<String,Pair<String,String>> columnNamesBack = new HashMap<>();
 	private Set<String> usedNames = new HashSet<>();
 	private PacketIO io;
 	private byte[] namingKey;
@@ -65,15 +68,15 @@ public class SchemaManager {
 	//TODO encrypt column names instead of randomly generated
 	
 	public List<List<String>> addTable(String tableId, String[] columnIds) {
-		if(tableNames.containsKey(tableId))
-			throw new IllegalArgumentException("Table ID already registered: " + tableId);
-		String pName = getRandomString();
-		while(tableNamesBack.containsKey(pName))
-			pName = getRandomString();
-		tableNames.put(tableId, pName);
-		tableNamesBack.put(pName, tableId);
+		if(RANDOMIZE_COL) {
+			if(tableNames.containsKey(tableId))
+				throw new IllegalArgumentException("Table ID already registered: " + tableId);
+			String pName = getRandomString();
+			tableNames.put(tableId, pName);
+			tableNamesBack.put(pName, tableId);
+			columnNames.put(tableId, new HashMap<>());
+		}
 		newRowNames.put(tableId, 0);
-		columnNames.put(tableId, new HashMap<>());
 		schemaAnnotation.put(tableId, new LinkedHashMap<>());
 		List<List<String>> ret = new ArrayList<>();
 		for(String columnId : columnIds) {
@@ -83,20 +86,20 @@ public class SchemaManager {
 	}
 	
 	public List<String> insertColumn(String tableId, String columnId) {
-		if(columnNames.get(tableId).containsKey(columnId))
-			throw new IllegalArgumentException("Column ID already registered: " + tableId + " : " + columnId);
 		Map<String, Onion> col = new LinkedHashMap<>();
 		col.put(String.format("%s_%d", columnId, 0), new OnionRDO());
 		col.put(String.format("%s_%d", columnId, 1), new OnionRS());
 		schemaAnnotation.get(tableId).put(columnId, col);
-//		columnNames.get(tableId).put(columnId, getRandomString());
-		for(int i = 0; i < 2; i++) {
-			
-			String pName = getRandomString();
-			while(columnNamesBack.containsKey(pName))
-				pName = getRandomString();
-			columnNames.get(tableId).put(String.format("%s_%d", columnId, i), pName);
-			columnNamesBack.put(pName, String.format("%s_%d", columnId, i));
+		if(RANDOMIZE_COL) {
+			if(columnNames.get(tableId).containsKey(columnId))
+				throw new IllegalArgumentException("Column ID already registered: " + tableId + " : " + columnId);
+			columnNames.get(tableId).put(columnId, getRandomString());
+			for(int i = 0; i < 2; i++) {
+				
+				String pName = getRandomString();
+				columnNames.get(tableId).put(String.format("%s_%d", columnId, i), pName);
+				columnNamesBack.put(pName, new Pair<>(tableId, String.format("%s_%d", columnId, i)));
+			}
 		}
 		List<String> ret = new ArrayList<>();
 		ret.add(String.format("%s_%d", columnId, 0));
@@ -131,24 +134,46 @@ public class SchemaManager {
 	}
 	
 	public String getPhysicalTableName(String tableId) {
-		Util.ensure(tableNames.containsKey(tableId));
-		return tableNames.get(tableId);
+		if(RANDOMIZE_COL) {
+			Util.ensure(tableNames.containsKey(tableId));
+			return tableNames.get(tableId);
+		}
+		return Util.hexAlphaEncode(CryptoDET.encrypt(namingKey, tableId.getBytes()));
 	}
 	
 	public String getPhysicalColumnName(String tableId, String columnId) {
-		Util.ensure(columnNames.containsKey(tableId));
-		Util.ensure(columnNames.get(tableId).containsKey(columnId));
-		return columnNames.get(tableId).get(columnId);
+		if(RANDOMIZE_COL) {
+			Util.ensure(columnNames.containsKey(tableId));
+			Util.ensure(columnNames.get(tableId).containsKey(columnId));
+			return columnNames.get(tableId).get(columnId);
+		}
+		if(tableId.indexOf('|') != -1 || columnId.indexOf('|') != -1)
+			throw new IllegalArgumentException("Column & table names cannot contain |");
+		return Util.hexAlphaEncode(CryptoDET.encrypt(namingKey, (tableId + "|" + columnId).getBytes()));
 	}
 	
-	public String getSubcolumnNameFromPhysical(String columnName) {
-		Util.ensure(columnNamesBack.containsKey(columnName));
-		return columnNamesBack.get(columnName);
+	/**
+	 * 
+	 * @param columnName
+	 * @return Pair of tableId,columnId
+	 */
+	public Pair<String, String> getSubcolumnNameFromPhysical(String columnName) {
+		if(RANDOMIZE_COL) {
+			Util.ensure(columnNamesBack.containsKey(columnName));
+			return columnNamesBack.get(columnName);
+		}
+		String[] pair = new String(CryptoDET.decrypt(namingKey, Util.hexAlphaDecode(columnName))).split("|");
+		if(pair.length > 2)
+			throw new RuntimeException("Decryption failed");
+		return new Pair<>(pair[0], pair[1]);
 	}
 	
 	public String getTableNameFromPhysical(String tableName) {
-		Util.ensure(tableNames.containsKey(tableName));
-		return tableNamesBack.get(tableName);
+		if(RANDOMIZE_COL) {
+			Util.ensure(tableNames.containsKey(tableName));
+			return tableNamesBack.get(tableName);
+		}
+		return new String(CryptoDET.decrypt(namingKey, Util.hexAlphaDecode(tableName)));
 	}
 	
 	/*

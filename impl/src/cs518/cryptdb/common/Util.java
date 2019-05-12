@@ -7,6 +7,11 @@ import java.nio.ByteBuffer;
 
 public class Util {
 	
+	private static final char[] charset = "ABCDEFGHIJKLMNOP".toCharArray();
+	static {
+		
+	}
+	
 	public static void ensure(boolean b, String s) {
 		if(!b) {
 			throw new AssertionError(s);
@@ -46,5 +51,25 @@ public class Util {
 	
 	public static byte[] intToBytes(int i) {
 		return ByteBuffer.allocate(4).putInt(i).array();
+	}
+	
+	public static String hexAlphaEncode(byte[] b) {
+		StringBuffer buf = new StringBuffer();
+		for (int i = 0; i < b.length; i++) {
+			buf.append(charset[b[i] & 0xF]);
+			buf.append(charset[b[i] >> 4 & 0xF]);
+		}
+		return buf.toString();
+	}
+	
+	public static byte[] hexAlphaDecode(String s) {
+		if(s.length() % 2 == 1)
+			throw new IllegalArgumentException("Not a valid string -- odd length");
+		byte[] ret = new byte[s.length() / 2];
+		char[] ar = s.toCharArray();
+		for (int i = 0; i < ret.length; i++) {
+			ret[i] = (byte) (((ar[2 * i + 1]-'A') << 4) | (ar[2*i]-'A'));
+		}
+		return ret;
 	}
 }
