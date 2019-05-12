@@ -5,6 +5,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import javax.sql.rowset.CachedRowSet;
+
 import cs518.cryptdb.common.Util;
 
 public class DatabaseTest {
@@ -21,40 +23,54 @@ public class DatabaseTest {
 		}
 	}
 	
+	private static String resultSetToString(ResultSet rs) {
+		StringBuffer buf = new StringBuffer();
+		try {
+			for(int i = 0; i < rs.getMetaData().getColumnCount(); i++) {
+				if(i != 0)
+					buf.append(",");
+				buf.append(rs.getMetaData().getColumnName(i+1));
+			}
+			buf.append('\n');
+			while (rs.next()) {
+				for(int i = 0; i < rs.getMetaData().getColumnCount(); i++) {
+					if(i != 0)
+						buf.append(",");
+					buf.append(rs.getString(i+1));
+				}
+				buf.append('\n');
+			}
+		} catch(SQLException e) {
+			e.printStackTrace();
+		}
+		return buf.toString();
+	}
+	
 	private static void runDBBinaryTest(Connection conn) throws SQLException {
 		Statement stmt = null;
 		stmt = conn.createStatement();
-		String s = "create table HIKES (rownum int, dist varbinary(100000000))";
+		String s = "create table TESTTABLE (ROWID integer, VAL varbinary(100000000))";
 		System.out.println(s);
 		stmt.executeUpdate(s);
 		stmt.close();
 		
 		stmt=conn.createStatement();
-		s = "insert into HIKES values (1, 0x7AAAAAAA)";
+		s = "insert into TESTTABLE values (1, 0x7AAAAAAA)";
 		System.out.println(s);
 		stmt.executeUpdate(s); //FIXME this is the problem
 		stmt.close();
 		
 		stmt=conn.createStatement();
-		s = "select * from HIKES WHERE rownum = 1";
+		s = "insert into TESTTABLE values (2, 0x8AAAAAAA)";
+		System.out.println(s);
+		stmt.executeUpdate(s); //FIXME this is the problem
+		stmt.close();
+		
+		stmt=conn.createStatement();
+		s = "select * from TESTTABLE order by ROWID";
+		System.out.println(s);
 		ResultSet rs = stmt.executeQuery(s);
-		rs.next();
-		System.out.println(s);
-		System.out.println(Util.bytesToHex(rs.getBytes(1)));
-		stmt.close();
-		
-		stmt=conn.createStatement();
-		s = "insert into HIKES values (1, 0x8AAAAAAA)";
-		System.out.println(s);
-		stmt.executeUpdate(s); //FIXME this is the problem
-		stmt.close();
-		
-		stmt=conn.createStatement();
-		s = "select * from HIKES where rownum = 2";
-		System.out.println(s);
-		rs = stmt.executeQuery(s);
-		rs.next();
-		System.out.println(Util.bytesToHex(rs.getBytes(1)));
+		System.out.println(resultSetToString(rs));
 		stmt.close();
 	}
 	

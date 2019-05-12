@@ -185,7 +185,9 @@ public class SchemaManager {
 	 * FIXME: do we determine subcolumn & column from columnID? Or split them
 	 */
 	public byte[] decrypt(String tableId, String columnId, String subColumn, String rowId, byte[] ciphertext) {
-		return schemaAnnotation.get(tableId).get(columnId).get(subColumn).decrypt(ciphertext, tableId, columnId, rowId);
+		String pTableId = getPhysicalTableName(tableId);
+		String pColId = getPhysicalColumnName(tableId, subColumn);
+		return schemaAnnotation.get(tableId).get(columnId).get(subColumn).decrypt(ciphertext, pTableId, pColId, rowId);
 	}
 	
 	public byte[] decrypt(String tableId, String columnId, String rowId, byte[] ciphertext) {
@@ -201,7 +203,9 @@ public class SchemaManager {
 		for(String subColumn : schemaAnnotation.get(tableId).get(columnId).keySet()) {
 			Onion o = schemaAnnotation.get(tableId).get(columnId).get(subColumn);
 			if(o.canHandle(scheme)) {
-				return new Pair<>(subColumn, o.encrypt(plaintext, tableId, columnId, rowId));
+				String pTableId = getPhysicalTableName(tableId);
+				String pColId = getPhysicalColumnName(tableId, subColumn);
+				return new Pair<>(subColumn, o.encrypt(plaintext, pTableId, pColId, rowId));
 			}
 		}
 		throw new UnsupportedOperationException();
@@ -210,8 +214,10 @@ public class SchemaManager {
 	public List<byte[]> encryptAllSubcols(String tableId, String columnId, String rowId, byte[] plaintext) {
 		ArrayList<byte[]> res = new ArrayList<>();
 		for(String subColumn : schemaAnnotation.get(tableId).get(columnId).keySet()) {
+			String pTableId = getPhysicalTableName(tableId);
+			String pColId = getPhysicalColumnName(tableId, subColumn);
 			Onion o = schemaAnnotation.get(tableId).get(columnId).get(subColumn);
-			res.add(o.encrypt(plaintext, tableId, columnId, rowId));
+			res.add(o.encrypt(plaintext, pTableId, pColId, rowId));
 		}
 		return res;
 	}
@@ -225,7 +231,7 @@ public class SchemaManager {
 					if(o.isSupported(scheme)) {
 						List<Pair<CryptoScheme,byte[]>> l = o.deOnion(scheme);
 						if(l != null) {
-							sendDeOnion(l, tableId, columnId, subColId);
+							sendDeOnion(l, tableId, subColId);
 							break;
 						}
 					}
@@ -234,7 +240,7 @@ public class SchemaManager {
 		}
 	}
 
-	private void sendDeOnion(List<Pair<CryptoScheme, byte[]>> l, String tableId, String columnId, String subColumnId) {
+	private void sendDeOnion(List<Pair<CryptoScheme, byte[]>> l, String tableId, String subColumnId) {
 		try {
 			for(Pair<CryptoScheme, byte[]> p : l)
 				io.sendPacket(PacketIO.PARENT_ID, new DeOnionPacket(p.getFirst(), p.getSecond(), getPhysicalTableName(tableId), getPhysicalColumnName(tableId, subColumnId)));

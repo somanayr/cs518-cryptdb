@@ -1,8 +1,11 @@
 package cs518.cryptdb.common.crypto;
 
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.logging.Logger;
 
+import cs518.cryptdb.common.Util;
 import cs518.cryptdb.common.pair.Pair;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
@@ -29,7 +32,9 @@ public class OnionRDO extends Onion{
 	}
 	
 	public static byte[] encryptToRND(byte[] keyRND, byte[] ivRND, byte[] keyDET, byte[] keyOPE, byte[] plaintext) {
-		return encryptRND(keyRND, ivRND, encryptDET(keyDET, encryptOPE(keyOPE, plaintext)));
+		byte[] res = encryptRND(keyRND, ivRND, encryptDET(keyDET, encryptOPE(keyOPE, plaintext)));
+		Logger.getLogger("Proxy").info("Would have encrypted DET to: 0x" + Util.bytesToHex(encryptDET(keyDET, encryptOPE(keyOPE, plaintext))) + "\nWhich after decryption is: 0x" + Util.bytesToHex(decryptRND(keyRND, ivRND, res)) + "\nDecyprt params: 0x" + Util.bytesToHex(keyRND) + ", 0x" + Util.bytesToHex(ivRND));
+		return res;
 	}
 	
 	public static byte[] encryptToDET(byte[] keyDET, byte[] keyOPE, byte[] plaintext) {
@@ -128,6 +133,7 @@ public class OnionRDO extends Onion{
 		default:
 			throw new IllegalArgumentException();
 		}
+		Collections.reverse(ret);
 		return ret;
 	}
 

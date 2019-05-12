@@ -77,7 +77,7 @@ public class CreateEncryptedTable extends CreateTableDeParser {
             }
         } else {
             if (createTable.getColumnDefinitions() != null) {
-                buffer.append(" ( ROWID INT, ");
+                buffer.append(" ( ROWID INT UNIQUE, ");
                 for (Iterator<ColumnDefinition> iter = createTable.getColumnDefinitions().iterator(); iter.
                         hasNext();) {
                     ColumnDefinition columnDefinition = iter.next();

@@ -1,6 +1,7 @@
 package cs518.cryptdb.common.crypto;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -98,6 +99,7 @@ public class OnionRS extends Onion{
 		default:
 			throw new IllegalArgumentException();
 		}
+		Collections.reverse(ret);
 		return ret;
 	}
 

@@ -5,6 +5,8 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Arrays;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
@@ -18,6 +20,7 @@ import sun.misc.BASE64Encoder;
 public class CryptoRND {
 	
 	public static byte[] getIV(String tableId, String columnId, String rowId) {
+		Logger.getLogger("CryptoScheme").log(Level.INFO, String.format("IV built from %s,%s,%s", tableId, columnId, rowId));
 		MessageDigest digest;
 		try {
 			digest = MessageDigest.getInstance("SHA-256");
