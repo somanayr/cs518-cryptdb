@@ -17,11 +17,13 @@ import net.sf.jsqlparser.util.deparser.StatementDeParser;
 public class CreateEncryptedTable extends CreateTableDeParser {
 	
 	private StatementDeParser statementDeParser;
+	private StringBuilder buffer;
 	private SchemaManager schemaMgr;
 
 	public CreateEncryptedTable(StatementDeParser statementDeParser, StringBuilder buffer, SchemaManager schemaMgr) {
 		super(statementDeParser, buffer);
 		this.statementDeParser = statementDeParser;
+		this.buffer = buffer;
 		this.schemaMgr = schemaMgr;
 	}
 	
@@ -46,6 +48,7 @@ public class CreateEncryptedTable extends CreateTableDeParser {
         String tblName = createTable.getTable().getFullyQualifiedName();
         List<ColumnDefinition> colDefs = createTable.getColumnDefinitions();
         List<String> colIds = new ArrayList<String>();
+        List<List<String>> physicalTable;
         
         if (colDefs != null) {
         	colIds.add("ROWID");
@@ -53,7 +56,7 @@ public class CreateEncryptedTable extends CreateTableDeParser {
         		colIds.add(colDef.getColumnName());
         	}
         	String[] columnNames = new String[colIds.size()];
-	        schemaMgr.addTable(tblName, colIds.toArray(columnNames));
+	        physicalTable = schemaMgr.addTable(tblName, colIds.toArray(columnNames)); // TODO: rewrite pending updates to SchemaManager 
         } else {
         	// no columns to enter -- just reject the query
         	buffer.delete(0, buffer.length());
