@@ -124,6 +124,10 @@ public class SchemaManager {
 	}
 	
 	public String getSubcolumnForScheme(String tableId, String columnId, CryptoScheme scheme) {
+		Map<String, Map<String, CryptoScheme>> map = new HashMap<String, Map<String,CryptoScheme>>();
+		map.put(tableId, new HashMap<String, CryptoScheme>());
+		map.get(tableId).put(columnId, scheme);
+		ensureEncryptionSchemes(map);
 		for(String subColumn : schemaAnnotation.get(tableId).get(columnId).keySet()) {
 			Onion o = schemaAnnotation.get(tableId).get(columnId).get(subColumn);
 			if(o.canHandle(scheme)) {
@@ -198,16 +202,6 @@ public class SchemaManager {
 			Onion o = schemaAnnotation.get(tableId).get(columnId).get(subColumn);
 			if(o.canHandle(scheme)) {
 				return new Pair<>(subColumn, o.encrypt(plaintext, tableId, columnId, rowId));
-			}
-		}
-		throw new UnsupportedOperationException();
-	}
-	
-	public String getSubcolumnForScheme(String tableId, String columnId, String rowId, byte[] plaintext, CryptoScheme scheme) {
-		for(String subColumn : schemaAnnotation.get(tableId).get(columnId).keySet()) {
-			Onion o = schemaAnnotation.get(tableId).get(columnId).get(subColumn);
-			if(o.canHandle(scheme)) {
-				return subColumn;
 			}
 		}
 		throw new UnsupportedOperationException();

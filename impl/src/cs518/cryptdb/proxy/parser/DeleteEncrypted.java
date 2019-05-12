@@ -27,14 +27,19 @@ public class DeleteEncrypted extends DeleteDeParser {
 			return;
 		EncryptExpression encryptExpression = (EncryptExpression) expressionVisitor;
         buffer.append("DELETE");
-        if (delete.getTables() != null && delete.getTables().size() == 1) {
+        
+        // no. you can only delete from one table.
+        /*if (delete.getTables() != null && delete.getTables().size() == 1) {
             for (Table table : delete.getTables()) {
             	System.out.println(table.getFullyQualifiedName());
             	encryptExpression.updateEncryption(table, null, null);
                 buffer.append(" ").append(schemaMgr.getPhysicalTableName(table.getFullyQualifiedName()));
             }
-        }
-        buffer.append(" FROM ").append(delete.getTable().toString());
+        }*/
+        
+        encryptExpression.updateEncryption(delete.getTable(), null, null);
+        buffer.append(" FROM ").append(schemaMgr.getPhysicalTableName(delete.getTable().getFullyQualifiedName()));
+        System.out.println(schemaMgr.getPhysicalTableName(delete.getTable().getFullyQualifiedName()));
 
         if (delete.getJoins() != null) {
             for (Join join : delete.getJoins()) {
