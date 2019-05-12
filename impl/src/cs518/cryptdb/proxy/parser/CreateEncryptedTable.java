@@ -11,6 +11,7 @@ import cs518.cryptdb.proxy.SchemaManager;
 
 import net.sf.jsqlparser.statement.create.table.ColumnDefinition;
 import net.sf.jsqlparser.statement.create.table.CreateTable;
+import net.sf.jsqlparser.statement.create.table.ForeignKeyIndex;
 import net.sf.jsqlparser.statement.create.table.Index;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.Select;
@@ -120,6 +121,24 @@ public class CreateEncryptedTable extends CreateTableDeParser {
 						}
                         index.setColumnsNames(newColNames);
                         Logger.getLogger("Proxy").log(Level.INFO, String.format("Index: %s\nspec: %s\nType: %s\nName: %s\nColumns: %s", index.toString(), index.getIndexSpec(), index.getType(), index.getName(), index.getColumnsNames()));
+                        
+                        if(index instanceof ForeignKeyIndex) {
+                        	ForeignKeyIndex fki = (ForeignKeyIndex)index;
+                        	String fTable = fki.getTable().getFullyQualifiedName();
+                        	String pFTable = schemaMgr.getPhysicalTableName(fTable);
+                        	fki.getTable().setName(pFTable);
+                        	colNames = fki.getReferencedColumnNames();
+                            newColNames = new ArrayList<>();
+                            for (String colName : colNames) {
+                            	schemaMgr.forceQueueDeOnion();
+    							String subColName = schemaMgr.getSubcolumnForScheme(tblName, colName, CryptoScheme.DET);
+    							String pColName = schemaMgr.getPhysicalColumnName(tblName, subColName);
+    							newColNames.add(pColName);
+    						}
+                            fki.setReferencedColumnNames(newColNames);
+                        }
+                        Logger.getLogger("Proxy").log(Level.INFO, String.format("Index: %s\nspec: %s\nType: %s\nName: %s\nColumns: %s", index.toString(), index.getIndexSpec(), index.getType(), index.getName(), index.getColumnsNames()));
+                        
                         buffer.append(index.toString());
                     }
                 }
