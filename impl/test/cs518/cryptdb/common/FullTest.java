@@ -1,6 +1,8 @@
 package cs518.cryptdb.common;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.sql.ResultSet;
 import java.sql.Statement;
@@ -11,14 +13,13 @@ import cs518.cryptdb.database.DatabaseMain;
 import cs518.cryptdb.proxy.ProxyMain;
 
 public class FullTest {
-	public static void main(String[] args){
-		System.out.println(System.getProperty("javax.sql.rowset.RowSetFactory"));
+	public static void main(String[] args) throws IOException{
 		PrintStream sysout = System.out;
-//		File outfile = new File("output/out.txt");
-//		if(outfile.exists())
-//			outfile.delete();
-//		outfile.createNewFile();
-//		System.setOut(new PrintStream(outfile));
+		File outfile = new File("output/out.txt");
+		if(outfile.exists())
+			outfile.delete();
+		outfile.createNewFile();
+		System.setOut(new PrintStream(outfile));
 		
 		try {
 			proxyTest();

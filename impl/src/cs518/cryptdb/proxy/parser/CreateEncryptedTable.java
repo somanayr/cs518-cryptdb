@@ -120,7 +120,6 @@ public class CreateEncryptedTable extends CreateTableDeParser {
 							newColNames.add(pColName);
 						}
                         index.setColumnsNames(newColNames);
-                        Logger.getLogger("Proxy").log(Level.INFO, String.format("Index: %s\nspec: %s\nType: %s\nName: %s\nColumns: %s", index.toString(), index.getIndexSpec(), index.getType(), index.getName(), index.getColumnsNames()));
                         
                         if(index instanceof ForeignKeyIndex) {
                         	ForeignKeyIndex fki = (ForeignKeyIndex)index;
@@ -137,7 +136,6 @@ public class CreateEncryptedTable extends CreateTableDeParser {
     						}
                             fki.setReferencedColumnNames(newColNames);
                         }
-                        Logger.getLogger("Proxy").log(Level.INFO, String.format("Index: %s\nspec: %s\nType: %s\nName: %s\nColumns: %s", index.toString(), index.getIndexSpec(), index.getType(), index.getName(), index.getColumnsNames()));
                         
                         buffer.append(index.toString());
                     }
