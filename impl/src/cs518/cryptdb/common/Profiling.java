@@ -24,7 +24,7 @@ public class Profiling {
 					else
 						pauseTimer(name);
 				}
-				System.out.println("--------Profiling information to follow--------");
+				System.out.println("\n--------Profiling information to follow--------");
 				for(String name : timerVal.keySet()) {
 					long len = timerVal.get(name);
 					System.out.println(name + ": " + len);

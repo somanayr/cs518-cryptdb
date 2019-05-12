@@ -144,10 +144,10 @@ public class InsertEncrypted extends InsertDeParser {
             }
             int off = 0;
             for(byte[] encrypted : encryptedList) {
-	        	String hex = Util.bytesToHex(encrypted);
-	        	System.out.println("Inserting 0x" + hex); //FIXME we need to find a way to insert binary data -- hex values only work up to 0x7AAAAAAA
-            	System.out.println("Params: " + tableId + ", " + virtColName + "_" + off + ", " + rowId);
-            	System.out.println("Decrypted: " + new String(schemaMgr.decrypt(tableId, virtColName + "_" + off, rowId, encrypted)));
+//	        	String hex = Util.bytesToHex(encrypted);
+//	        	System.out.println("Inserting 0x" + hex); //FIXME we need to find a way to insert binary data -- hex values only work up to 0x7AAAAAAA
+//            	System.out.println("Params: " + tableId + ", " + virtColName + "_" + off + ", " + rowId);
+//            	System.out.println("Decrypted: " + new String(schemaMgr.decrypt(tableId, virtColName + "_" + off, rowId, encrypted)));
             	//buffer.append(new BigInteger(encrypted));
 	        	//buffer.append("0x").append(hex);
 	        	byte[] base64 = Base64.getEncoder().encode(encrypted);

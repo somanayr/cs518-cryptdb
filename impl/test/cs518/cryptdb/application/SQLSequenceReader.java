@@ -27,6 +27,7 @@ public class SQLSequenceReader {
 			am.sendStatement(s);
 			Profiling.stopTimer("Latency");
 		}
+		Profiling.pauseTimer("Run time");
 	}
 	
 	private static List<String> readSQLFile(String sqlFile) throws IOException {

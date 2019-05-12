@@ -65,7 +65,8 @@ public class PacketIO {
 						new Thread(sl).start();
 					}
 				} catch (IOException e) {
-					e.printStackTrace();
+					if(!e.getMessage().equals("Socket closed"))
+						e.printStackTrace();
 				}
 			}
 		}).start();
@@ -99,7 +100,8 @@ public class PacketIO {
 					pushPacket(p);
 				}
 			} catch (IOException e) {
-				e.printStackTrace();
+				if(!e.getMessage().equals("Socket closed"))
+					e.printStackTrace();
 			}
 		}
 		

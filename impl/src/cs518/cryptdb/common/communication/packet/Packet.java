@@ -128,8 +128,8 @@ public abstract class Packet {
 	public static Packet readPacket(InputStream is) throws IOException {
 		byte[] idb = new byte[4];
 		byte[] lenb = new byte[4];
-		is.read(idb);
-		is.read(lenb);
+		for(int i = 0; i < idb.length; i += is.read(idb));
+		for(int i = 0; i < idb.length; i += is.read(lenb));
 		int packetId = Util.byteToInt(idb);
 		int len = Util.byteToInt(lenb);
 		
