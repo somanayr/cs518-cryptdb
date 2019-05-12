@@ -50,13 +50,11 @@ public class EncryptedDatabase {
 		try {
 			ResultSet rs = executeQuery(String.format("SELECT ROWID, %s FROM %s;", columnId, tableId));
 			while(rs.next()) {
-				byte[] oldVal = Util.toByteArray(rs.getBinaryStream(columnId));
+				byte[] oldVal = Util.base64Decode(rs.getString(columnId));
 				byte[] newVal = CryptoScheme.decrypt(scheme, key, tableId, columnId, rs.getRowId(columnId).toString(), oldVal);
-				rs.updateBinaryStream(columnId, new ByteArrayInputStream(newVal));
+				rs.updateString(columnId, Util.base64Encode(newVal));
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
-		} catch (IOException e){
 			e.printStackTrace();
 		}
 	}

@@ -5,6 +5,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 
+import sun.misc.BASE64Decoder;
+import sun.misc.BASE64Encoder;
+
 public class Util {
 	
 	private static final char[] charset = "ABCDEFGHIJKLMNOP".toCharArray();
@@ -85,5 +88,17 @@ public class Util {
 	        hexChars[j * 2 + 1] = hexArray[v & 0x0F];
 	    }
 	    return new String(hexChars);
+	}
+	
+	public static String base64Encode(byte[] b) {
+		return new BASE64Encoder().encode(b);
+	}
+	
+	public static byte[] base64Decode(String s) {
+		try {
+			return new BASE64Decoder().decodeBuffer(s);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 }

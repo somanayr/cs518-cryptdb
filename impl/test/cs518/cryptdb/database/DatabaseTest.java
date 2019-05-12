@@ -24,18 +24,35 @@ public class DatabaseTest {
 	private static void runDBBinaryTest(Connection conn) throws SQLException {
 		Statement stmt = null;
 		stmt = conn.createStatement();
-		stmt.executeUpdate("create table HIKES (dist varbinary(100000000))");
+		String s = "create table HIKES (rownum int, dist varbinary(100000000))";
+		System.out.println(s);
+		stmt.executeUpdate(s);
 		stmt.close();
 		
 		stmt=conn.createStatement();
-		stmt.executeUpdate("insert into HIKES values (0x8AAAAAAA)"); //FIXME this is the problem
-		stmt.executeUpdate("insert into HIKES values ('0x8AAAAAAA')"); //FIXME this is the problem
+		s = "insert into HIKES values (1, 0x7AAAAAAA)";
+		System.out.println(s);
+		stmt.executeUpdate(s); //FIXME this is the problem
 		stmt.close();
 		
 		stmt=conn.createStatement();
-		ResultSet rs = stmt.executeQuery("select * from HIKES");
+		s = "select * from HIKES WHERE rownum = 1";
+		ResultSet rs = stmt.executeQuery(s);
 		rs.next();
+		System.out.println(s);
 		System.out.println(Util.bytesToHex(rs.getBytes(1)));
+		stmt.close();
+		
+		stmt=conn.createStatement();
+		s = "insert into HIKES values (1, 0x8AAAAAAA)";
+		System.out.println(s);
+		stmt.executeUpdate(s); //FIXME this is the problem
+		stmt.close();
+		
+		stmt=conn.createStatement();
+		s = "select * from HIKES where rownum = 2";
+		System.out.println(s);
+		rs = stmt.executeQuery(s);
 		rs.next();
 		System.out.println(Util.bytesToHex(rs.getBytes(1)));
 		stmt.close();
