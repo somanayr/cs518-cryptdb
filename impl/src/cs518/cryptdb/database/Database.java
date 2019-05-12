@@ -66,7 +66,7 @@ public class Database {
 	 * @throws SQLException
 	 */
 	public static ResultSet executeQuery(String statement) throws SQLException {
-		s = connection.createStatement();
+		s = connection.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
 		ResultSet ret = s.executeQuery(statement);
 		return ret;
 	}
