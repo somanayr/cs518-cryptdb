@@ -56,7 +56,13 @@ public class InsertEncrypted extends InsertDeParser {
             buffer.append(" (ROWID ");
             for (Iterator<Column> iter = insert.getColumns().iterator(); iter.hasNext();) {
                 Column column = iter.next();
-                buffer.append(schemaMgr.getPhysicalColumnName(tableId, column.getColumnName()));
+                List<String> subcols = schemaMgr.getAllSubcolumns(tableId, column.getColumnName());
+                String lastSubCol = subcols.get(subcols.size() - 1);
+                for(String subcol : subcols) {
+                	buffer.append(schemaMgr.getPhysicalColumnName(tableId, subcol));
+                    if(subcol != lastSubCol)
+                    	buffer.append(", ");
+                }
                 if (iter.hasNext()) {
                     buffer.append(", ");
                 }

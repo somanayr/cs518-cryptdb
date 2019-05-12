@@ -93,7 +93,7 @@ public class SchemaManager {
 		if(RANDOMIZE_COL) {
 			if(columnNames.get(tableId).containsKey(columnId))
 				throw new IllegalArgumentException("Column ID already registered: " + tableId + " : " + columnId);
-			columnNames.get(tableId).put(columnId, getRandomString());
+			//columnNames.get(tableId).put(columnId, getRandomString());
 			for(int i = 0; i < 2; i++) {
 				
 				String pName = getRandomString();
@@ -170,7 +170,7 @@ public class SchemaManager {
 	
 	public String getTableNameFromPhysical(String tableName) {
 		if(RANDOMIZE_COL) {
-			Util.ensure(tableNames.containsKey(tableName));
+			Util.ensure(tableNamesBack.containsKey(tableName));
 			return tableNamesBack.get(tableName);
 		}
 		return new String(CryptoDET.decrypt(namingKey, Util.hexAlphaDecode(tableName)));

@@ -81,14 +81,20 @@ public class CreateEncryptedTable extends CreateTableDeParser {
                 for (Iterator<ColumnDefinition> iter = createTable.getColumnDefinitions().iterator(); iter.
                         hasNext();) {
                     ColumnDefinition columnDefinition = iter.next();
-                    buffer.append(schemaMgr.getPhysicalColumnName(tblName, columnDefinition.getColumnName()));
-                    buffer.append(" ");
-                    buffer.append("VARBINARY(1000000)"); // because we're using H2 and storing everything as byte[]
-                    if (columnDefinition.getColumnSpecStrings() != null) {
-                        for (String s : columnDefinition.getColumnSpecStrings()) {
-                            buffer.append(" ");
-                            buffer.append(s);
-                        }
+                    List<String> subcols = schemaMgr.getAllSubcolumns(tblName, columnDefinition.getColumnName());
+                    String lastSubCol = subcols.get(subcols.size() - 1);
+                    for(String subcol : subcols) {
+	                    buffer.append(schemaMgr.getPhysicalColumnName(tblName, subcol));
+	                    buffer.append(" ");
+	                    buffer.append("VARBINARY(1000000)"); // because we're using H2 and storing everything as byte[]
+	                    if (columnDefinition.getColumnSpecStrings() != null) {
+	                        for (String s : columnDefinition.getColumnSpecStrings()) {
+	                            buffer.append(" ");
+	                            buffer.append(s);
+	                        }
+	                    }
+	                    if(subcol != lastSubCol)
+	                    	buffer.append(", ");
                     }
 
                     if (iter.hasNext()) {
