@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -59,6 +60,7 @@ public class SchemaManager {
 	private Set<String> usedNames = new HashSet<>();
 	private PacketIO io;
 	private byte[] namingKey;
+	private LinkedList<DeOnionPacket> packetQueue;
 	
 	public SchemaManager(PacketIO io) {
 		this.io = io;
@@ -242,8 +244,13 @@ public class SchemaManager {
 
 	private void sendDeOnion(List<Pair<CryptoScheme, byte[]>> l, String tableId, String subColumnId) {
 		try {
-			for(Pair<CryptoScheme, byte[]> p : l)
-				io.sendPacket(PacketIO.PARENT_ID, new DeOnionPacket(p.getFirst(), p.getSecond(), getPhysicalTableName(tableId), getPhysicalColumnName(tableId, subColumnId)));
+			for(Pair<CryptoScheme, byte[]> p : l) {
+				DeOnionPacket packet = new DeOnionPacket(p.getFirst(), p.getSecond(), getPhysicalTableName(tableId), getPhysicalColumnName(tableId, subColumnId));
+				if(packetQueue == null)
+					io.sendPacket(PacketIO.PARENT_ID, packet);
+				else
+					packetQueue.add(packet);
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -259,5 +266,19 @@ public class SchemaManager {
 
 	public String getColumnForSubcolumn(String columnId) {
 		return columnId.substring(0, columnId.lastIndexOf('_'));
+	}
+
+	public void forceQueueDeOnion() {
+		if(packetQueue == null)
+			packetQueue = new LinkedList<>();
+	}
+	
+	public void clearDeOnionQueue() throws IOException {
+		if(packetQueue != null) {
+			for (DeOnionPacket packet : packetQueue) {
+				io.sendPacket(PacketIO.PARENT_ID, packet);
+			}
+			packetQueue = null;
+		}
 	}
 }

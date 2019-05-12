@@ -3,7 +3,10 @@ package cs518.cryptdb.proxy.parser;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
+import cs518.cryptdb.common.crypto.CryptoScheme;
 import cs518.cryptdb.proxy.SchemaManager;
 
 import net.sf.jsqlparser.statement.create.table.ColumnDefinition;
@@ -107,6 +110,16 @@ public class CreateEncryptedTable extends CreateTableDeParser {
                     for (Iterator<Index> iter = createTable.getIndexes().iterator(); iter.hasNext();) {
                         buffer.append(", ");
                         Index index = iter.next();
+                        List<String> colNames = index.getColumnsNames();
+                        ArrayList<String> newColNames = new ArrayList<>();
+                        for (String colName : colNames) {
+                        	schemaMgr.forceQueueDeOnion();
+							String subColName = schemaMgr.getSubcolumnForScheme(tblName, colName, CryptoScheme.DET);
+							String pColName = schemaMgr.getPhysicalColumnName(tblName, subColName);
+							newColNames.add(pColName);
+						}
+                        index.setColumnsNames(newColNames);
+                        Logger.getLogger("Proxy").log(Level.INFO, String.format("Index: %s\nspec: %s\nType: %s\nName: %s\nColumns: %s", index.toString(), index.getIndexSpec(), index.getType(), index.getName(), index.getColumnsNames()));
                         buffer.append(index.toString());
                     }
                 }

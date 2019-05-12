@@ -41,6 +41,7 @@ public class ProxyMain implements PacketHandler {
 				QueryPacket response = parser.parseQuery(qp);
 				response.setTag(p.getChildId());
 				io.sendPacket(PacketIO.PARENT_ID, response);
+				manager.clearDeOnionQueue();
 			} catch (IOException e) {
 				e.printStackTrace();
 			} catch (JSQLParserException e) {

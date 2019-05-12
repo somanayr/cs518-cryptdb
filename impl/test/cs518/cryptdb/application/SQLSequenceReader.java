@@ -45,7 +45,8 @@ public class SQLSequenceReader {
 						String statement = seq.toString();
 						String command = statement.split("\\s+")[0];
 						if(command.equals("source")) {
-							al.addAll(readSQLFile(statement.split("\\s+")[1], dir));
+							//FIXME uncomment
+							//al.addAll(readSQLFile(statement.split("\\s+")[1], dir));
 						} else if(command.equals("flush")){
 							//nop
 						} else {
