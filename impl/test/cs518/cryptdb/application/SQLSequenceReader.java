@@ -21,9 +21,15 @@ public class SQLSequenceReader {
 		List<String> l = readSQLFile(sqlFile);
 		
 		Profiling.startTimer("Run time");
+		int ct = 0;
 		for(String s : l) {
 			Profiling.startTimer("Latency");
-			System.out.println("Next statement: " + s);
+			if(!s.startsWith("INSERT"))
+				System.out.println("Next statement: " + s);
+			ct += 1;
+			if(ct * 100 / l.size() != (ct - 1) * 100 / l.size()) {
+				System.out.printf("%d%% of statements submitted\n", ct * 100 / l.size());
+			}
 			am.sendStatement(s);
 			Profiling.stopTimer("Latency");
 		}
@@ -56,7 +62,10 @@ public class SQLSequenceReader {
 						} else if(command.equals("flush")){
 							//nop
 						} else {
-							al.add(statement); //FIXME + ';' ???
+							al.add(statement); 
+							if(al.size() > 1000) { //FIXME stop max size
+								return al;
+							}
 						}
 						seq = new StringBuffer();
 					} else {

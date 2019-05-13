@@ -126,15 +126,18 @@ public class CreateEncryptedTable extends CreateTableDeParser {
                         	String fTable = fki.getTable().getFullyQualifiedName();
                         	String pFTable = schemaMgr.getPhysicalTableName(fTable);
                         	fki.getTable().setName(pFTable);
-                        	colNames = fki.getReferencedColumnNames();
-                            newColNames = new ArrayList<>();
-                            for (String colName : colNames) {
+                        	List<String> fkcolNames = fki.getReferencedColumnNames();
+                            List<String> fknewColNames = new ArrayList<>();
+                            for (String fkcolName : fkcolNames) {
                             	schemaMgr.forceQueueDeOnion();
-    							String subColName = schemaMgr.getSubcolumnForScheme(fTable, colName, CryptoScheme.DET);
-    							String pColName = schemaMgr.getPhysicalColumnName(fTable, subColName);
-    							newColNames.add(pColName);
-    						}
-                            fki.setReferencedColumnNames(newColNames);
+    							String fksubColName = schemaMgr.getSubcolumnForScheme(fTable, fkcolName, CryptoScheme.JOIN);
+    							String pfkColName = schemaMgr.getPhysicalColumnName(fTable, fksubColName);
+    							fknewColNames.add(pfkColName);
+    	                        for (String colName : colNames) {
+    	                        	schemaMgr.join(tblName, colName, fTable, fkcolName);
+    	                        }
+                            }
+                            fki.setReferencedColumnNames(fknewColNames);
                         }
                         
                         buffer.append(index.toString());

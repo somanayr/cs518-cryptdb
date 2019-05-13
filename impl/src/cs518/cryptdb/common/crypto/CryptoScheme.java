@@ -7,7 +7,7 @@ import cs518.cryptdb.common.Util;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 public enum CryptoScheme {
-	DET,OPE,RND,SEARCH,NONE;
+	DET,OPE,RND,SEARCH,NONE,JOIN;
 	
 	public static CryptoScheme getScheme(String statement) {
 		throw new NotImplementedException();

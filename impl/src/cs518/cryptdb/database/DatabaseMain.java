@@ -26,6 +26,7 @@ public class DatabaseMain implements PacketHandler {
 
 	@Override
 	public void handlePacket(Packet p) {
+		if(!(p instanceof QueryPacket && ((QueryPacket)p).getQuery().startsWith("INSERT")))
 		System.out.println("Database: got packet " + p);
 		if(p instanceof QueryPacket) {
 			try {

@@ -9,40 +9,40 @@ import cs518.cryptdb.common.Util;
 import cs518.cryptdb.common.pair.Pair;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
-public class OnionRDO extends Onion{
+public class OnionRDJ extends Onion{
 	
-	public static byte[] makeOnion(byte[] keyRND, byte[] ivRND, byte[] keyDET, byte[] keyOPE, byte[] plaintext) {
+	public static byte[] makeOnion(byte[] keyRND, byte[] ivRND, byte[] keyDET, byte[] keyJOIN, byte[] plaintext) {
 		return CryptoRND.encrypt(keyRND, ivRND,
 				CryptoDET.encrypt(keyDET,
-						CryptoOPE.encrypt(keyOPE, plaintext)
+						CryptoJOIN.encrypt(keyJOIN, plaintext)
 						)
 				);
 	}
 	
-	public static byte[] decryptFromRND(byte[] keyRND, byte[] ivRND, byte[] keyDET, byte[] keyOPE, byte[] ciphertext) {
-		return decryptOPE(keyOPE, decryptDET(keyDET, decryptRND(keyRND, ivRND, ciphertext)));
+	public static byte[] decryptFromRND(byte[] keyRND, byte[] ivRND, byte[] keyDET, byte[] keyJOIN, byte[] ciphertext) {
+		return decryptJOIN(keyJOIN, decryptDET(keyDET, decryptRND(keyRND, ivRND, ciphertext)));
 	}
 	
-	public static byte[] decryptFromDET(byte[] keyDET, byte[] keyOPE, byte[] ciphertext) {
-		return decryptOPE(keyOPE, decryptDET(keyDET, ciphertext));
+	public static byte[] decryptFromDET(byte[] keyDET, byte[] keyJOIN, byte[] ciphertext) {
+		return decryptJOIN(keyJOIN, decryptDET(keyDET, ciphertext));
 	}
 	
-	public static byte[] decryptFromOPE(byte[] keyOPE, byte[] ciphertext) {
-		return decryptOPE(keyOPE, ciphertext);
+	public static byte[] decryptFromJOIN(byte[] keyJOIN, byte[] ciphertext) {
+		return decryptJOIN(keyJOIN, ciphertext);
 	}
 	
-	public static byte[] encryptToRND(byte[] keyRND, byte[] ivRND, byte[] keyDET, byte[] keyOPE, byte[] plaintext) {
-		byte[] res = encryptRND(keyRND, ivRND, encryptDET(keyDET, encryptOPE(keyOPE, plaintext)));
-		//Logger.getLogger("Proxy").info("Would have encrypted OPE to: 0x" + Util.bytesToHex(encryptOPE(keyOPE, plaintext)));
+	public static byte[] encryptToRND(byte[] keyRND, byte[] ivRND, byte[] keyDET, byte[] keyJOIN, byte[] plaintext) {
+		byte[] res = encryptRND(keyRND, ivRND, encryptDET(keyDET, encryptJOIN(keyJOIN, plaintext)));
+		//Logger.getLogger("Proxy").info("Would have encrypted JOIN to: 0x" + Util.bytesToHex(encryptJOIN(keyJOIN, plaintext)));
 		return res;
 	}
 	
-	public static byte[] encryptToDET(byte[] keyDET, byte[] keyOPE, byte[] plaintext) {
-		return encryptDET(keyDET, encryptOPE(keyOPE, plaintext));
+	public static byte[] encryptToDET(byte[] keyDET, byte[] keyJOIN, byte[] plaintext) {
+		return encryptDET(keyDET, encryptJOIN(keyJOIN, plaintext));
 	}
 	
-	public static byte[] encryptToOPE(byte[] keyOPE, byte[] plaintext) {
-		return encryptOPE(keyOPE, plaintext);
+	public static byte[] encryptToJOIN(byte[] keyJOIN, byte[] plaintext) {
+		return encryptJOIN(keyJOIN, plaintext);
 	}
 	
 	public static byte[] encryptRND(byte[] keyRND, byte[] ivRND, byte[] plaintext) {
@@ -53,8 +53,8 @@ public class OnionRDO extends Onion{
 		return CryptoDET.encrypt(keyDET, plaintext);
 	}
 	
-	public static byte[] encryptOPE(byte[] keyOPE, byte[] plaintext) {
-		return CryptoOPE.encrypt(keyOPE, plaintext);
+	public static byte[] encryptJOIN(byte[] keyJOIN, byte[] plaintext) {
+		return CryptoJOIN.encrypt(keyJOIN, plaintext);
 	}
 	
 	public static byte[] decryptRND(byte[] keyRND, byte[] ivRND, byte[] ciphertext) {
@@ -65,19 +65,19 @@ public class OnionRDO extends Onion{
 		return CryptoDET.decrypt(keyDET, ciphertext);
 	}
 	
-	public static byte[] decryptOPE(byte[] keyOPE, byte[] ciphertext) {
-		return CryptoOPE.decrypt(keyOPE, ciphertext);
+	public static byte[] decryptJOIN(byte[] keyJOIN, byte[] ciphertext) {
+		return CryptoJOIN.decrypt(keyJOIN, ciphertext);
 	}
 	
 	
 	private byte[] keyRND;
 	private byte[] keyDET;
-	private byte[] keyOPE;
+	private byte[] keyJOIN;
 	
-	public OnionRDO() {
+	public OnionRDJ() {
 		keyRND = CryptoRND.generateKey();
 		keyDET = CryptoDET.generateKey();
-		keyOPE = CryptoOPE.generateKey();
+		keyJOIN = CryptoJOIN.generateKey();
 	}
 
 	@Override
@@ -87,10 +87,10 @@ public class OnionRDO extends Onion{
 			return true;
 		case DET:
 			return keyRND == null;
-		case OPE:
+		case JOIN:
 			return keyRND == null && keyDET == null;
 		case NONE:
-			return keyRND == null && keyDET == null && keyOPE == null;
+			return keyRND == null && keyDET == null && keyJOIN == null;
 		default:
 			return false;
 		}
@@ -101,7 +101,7 @@ public class OnionRDO extends Onion{
 		switch(s) {
 		case RND:
 		case DET:
-		case OPE:
+		case JOIN:
 		case NONE:
 			return true;
 		default:
@@ -114,11 +114,11 @@ public class OnionRDO extends Onion{
 		List<Pair<CryptoScheme, byte[]>> ret = new LinkedList<>();
 		switch(s) {
 		case NONE:
-			if(keyOPE != null) {
-				ret.add(new Pair<CryptoScheme, byte[]>(CryptoScheme.OPE, keyOPE));
-				keyOPE = null;
+			if(keyJOIN != null) {
+				ret.add(new Pair<CryptoScheme, byte[]>(CryptoScheme.JOIN, keyJOIN));
+				keyJOIN = null;
 			}
-		case OPE:
+		case JOIN:
 			if(keyDET != null) {
 				ret.add(new Pair<CryptoScheme, byte[]>(CryptoScheme.DET, keyDET));
 				keyDET = null;
@@ -141,11 +141,11 @@ public class OnionRDO extends Onion{
 	public byte[] decrypt(byte[] ciphertext, String tableId, String columnId, String rowId) {
 		if(keyRND != null) {
 			byte[] ivRnd = CryptoRND.getIV(tableId, columnId, rowId);
-			return decryptFromRND(keyRND, ivRnd, keyDET, keyOPE, ciphertext);
+			return decryptFromRND(keyRND, ivRnd, keyDET, keyJOIN, ciphertext);
 		} else if(keyDET != null) {
-			return decryptFromDET(keyDET, keyOPE, ciphertext);
-		} else if(keyOPE != null) {
-			return decryptFromOPE(keyOPE, ciphertext);
+			return decryptFromDET(keyDET, keyJOIN, ciphertext);
+		} else if(keyJOIN != null) {
+			return decryptFromJOIN(keyJOIN, ciphertext);
 		}
 		return ciphertext;
 	}
@@ -154,11 +154,11 @@ public class OnionRDO extends Onion{
 	public byte[] encrypt(byte[] plaintext, String tableId, String columnId, String rowId) {
 		if(keyRND != null) {
 			byte[] ivRnd = CryptoRND.getIV(tableId, columnId, rowId);
-			return encryptToRND(keyRND, ivRnd, keyDET, keyOPE, plaintext);
+			return encryptToRND(keyRND, ivRnd, keyDET, keyJOIN, plaintext);
 		} else if(keyDET != null) {
-			return encryptToDET(keyDET, keyOPE, plaintext);
-		} else if(keyOPE != null) {
-			return encryptToOPE(keyOPE, plaintext);
+			return encryptToDET(keyDET, keyJOIN, plaintext);
+		} else if(keyJOIN != null) {
+			return encryptToJOIN(keyJOIN, plaintext);
 		}
 		return plaintext;
 	}
@@ -166,5 +166,13 @@ public class OnionRDO extends Onion{
 	@Override
 	public byte[] serialize() {
 		throw new NotImplementedException();
+	}
+
+	public byte[] getJoinKey() {
+		return keyJOIN;
+	}
+	
+	public void setJoinKey(byte[] key) {
+		this.keyJOIN = key;
 	}
 }

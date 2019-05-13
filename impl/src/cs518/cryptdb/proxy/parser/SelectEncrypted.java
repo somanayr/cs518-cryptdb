@@ -2,16 +2,19 @@ package cs518.cryptdb.proxy.parser;
 
 import java.util.Iterator;
 
+import cs518.cryptdb.common.crypto.CryptoScheme;
 import cs518.cryptdb.proxy.SchemaManager;
-
+import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.ExpressionVisitor;
 import net.sf.jsqlparser.expression.ExpressionVisitorAdapter;
 import net.sf.jsqlparser.expression.OracleHint;
+import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.AllTableColumns;
 import net.sf.jsqlparser.statement.select.First;
 import net.sf.jsqlparser.statement.select.FromItem;
 import net.sf.jsqlparser.statement.select.Join;
+import net.sf.jsqlparser.statement.select.OrderByElement;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.SelectItem;
 import net.sf.jsqlparser.statement.select.Skip;
@@ -148,6 +151,15 @@ public class SelectEncrypted extends SelectDeParser {
         }
 
         if (plainSelect.getOrderByElements() != null) {
+        	for(OrderByElement e : plainSelect.getOrderByElements()) {
+        		Expression exp = e.getExpression();
+        		if(exp instanceof Column) {
+        			Column c = (Column)exp;
+        			String sc = schemaMgr.getSubcolumnForScheme(table.getFullyQualifiedName(), c.getColumnName(), CryptoScheme.OPE);
+        			String pCol = schemaMgr.getPhysicalColumnName(table.getFullyQualifiedName(), sc);
+        			c.setColumnName(pCol);
+        		}
+        	}
             new OrderByDeParser(expressionVisitor, buffer).
                     deParse(plainSelect.isOracleSiblings(), plainSelect.getOrderByElements());
         }

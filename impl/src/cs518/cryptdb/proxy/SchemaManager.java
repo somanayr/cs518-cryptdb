@@ -18,7 +18,8 @@ import cs518.cryptdb.common.crypto.CryptoDET;
 import cs518.cryptdb.common.crypto.CryptoRND;
 import cs518.cryptdb.common.crypto.CryptoScheme;
 import cs518.cryptdb.common.crypto.Onion;
-import cs518.cryptdb.common.crypto.OnionRDO;
+import cs518.cryptdb.common.crypto.OnionRDJ;
+import cs518.cryptdb.common.crypto.OnionRO;
 import cs518.cryptdb.common.crypto.OnionRS;
 import cs518.cryptdb.common.pair.Pair;
 
@@ -89,8 +90,8 @@ public class SchemaManager {
 	
 	public List<String> insertColumn(String tableId, String columnId) {
 		Map<String, Onion> col = new LinkedHashMap<>();
-		col.put(String.format("%s_%d", columnId, 0), new OnionRDO());
-		col.put(String.format("%s_%d", columnId, 1), new OnionRS());
+		col.put(String.format("%s_%d", columnId, 0), new OnionRDJ());
+		col.put(String.format("%s_%d", columnId, 1), new OnionRO());
 		schemaAnnotation.get(tableId).put(columnId, col);
 		if(RANDOMIZE_COL) {
 			if(columnNames.get(tableId).containsKey(columnId))
@@ -126,10 +127,24 @@ public class SchemaManager {
 	}
 	
 	public String getSubcolumnForScheme(String tableId, String columnId, CryptoScheme scheme) {
+		
+		if(columnNamesBack.containsKey(columnId)) {
+			System.err.println("WARNING: Got a physical column name. Just returning that ...");
+			return getSubcolumnNameFromPhysical(columnId).getSecond();
+		}
+		
 		Map<String, Map<String, CryptoScheme>> map = new HashMap<String, Map<String,CryptoScheme>>();
 		map.put(tableId, new HashMap<String, CryptoScheme>());
 		map.get(tableId).put(columnId, scheme);
 		ensureEncryptionSchemes(map);
+		
+		for(String subColumn : schemaAnnotation.get(tableId).get(columnId).keySet()) {
+			Onion o = schemaAnnotation.get(tableId).get(columnId).get(subColumn);
+			if(o.canHandle(scheme)) {
+				return subColumn;
+			}
+		}
+		System.err.println("Unsupported scheme: " + scheme);
 		for(String subColumn : schemaAnnotation.get(tableId).get(columnId).keySet()) {
 			Onion o = schemaAnnotation.get(tableId).get(columnId).get(subColumn);
 			if(o.canHandle(scheme)) {
@@ -227,16 +242,21 @@ public class SchemaManager {
 	public void ensureEncryptionSchemes(Map<String, Map<String, CryptoScheme>> schemes) {
 		for(String tableId : schemes.keySet()) {
 			for(String columnId : schemes.get(tableId).keySet()) {
+				boolean foundScheme = false;
 				for(String subColId : schemaAnnotation.get(tableId).get(columnId).keySet()) {
 					Onion o = schemaAnnotation.get(tableId).get(columnId).get(subColId);
 					CryptoScheme scheme = schemes.get(tableId).get(columnId);
 					if(o.isSupported(scheme)) {
+						foundScheme = true;
 						List<Pair<CryptoScheme,byte[]>> l = o.deOnion(scheme);
 						if(l != null) {
 							sendDeOnion(l, tableId, subColId);
 							break;
 						}
 					}
+				}
+				if(!foundScheme) {
+					throw new UnsupportedOperationException("Cannot enforce scheme");
 				}
 			}
 		}
@@ -280,5 +300,12 @@ public class SchemaManager {
 			}
 			packetQueue = null;
 		}
+	}
+
+	public void join(String tableId, String columnId, String fTableId, String fColumnId) {
+		String sc = getSubcolumnForScheme(tableId, columnId, CryptoScheme.JOIN);
+		String fsc = getSubcolumnForScheme(fTableId, fColumnId, CryptoScheme.JOIN);
+		byte[] key = ((OnionRDJ)schemaAnnotation.get(fTableId).get(fColumnId).get(fsc)).getJoinKey();
+		((OnionRDJ)schemaAnnotation.get(tableId).get(columnId).get(sc)).setJoinKey(key);
 	}
 }

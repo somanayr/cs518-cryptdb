@@ -8,6 +8,7 @@ import cs518.cryptdb.common.communication.PacketHandler;
 import cs518.cryptdb.common.communication.PacketIO;
 import cs518.cryptdb.common.communication.packet.Packet;
 import cs518.cryptdb.common.communication.packet.QueryPacket;
+import cs518.cryptdb.common.communication.packet.StatusPacket;
 import cs518.cryptdb.database.EncryptedDatabase;
 import cs518.cryptdb.proxy.ProxyMain;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
@@ -35,15 +36,18 @@ public class ApplicationMain implements PacketHandler {
 		String query = qp.getQuery();
 		if(query.length() > 50)
 			query = query.substring(0,50) + "...";
-		System.out.println("Sent query: " + query);
+		if(!(query.startsWith("INSERT")))
+			System.out.println("Sent query: " + query);
 		io.sendPacket(PacketIO.PARENT_ID, qp);
-		System.out.println("---------------------------------------");
 		
 		Packet p;
 		while((p = packets.poll()) == null);
 		
-		System.out.println(p);
-		System.out.println("---------------------------------------");
+		if(!(p instanceof StatusPacket)) {
+			System.out.println("---------------------------------------");
+			System.out.println(p);
+			System.out.println("---------------------------------------");
+		}
 		thePacket = null;
 		return p;
 	}
@@ -53,7 +57,8 @@ public class ApplicationMain implements PacketHandler {
 
 	@Override
 	public synchronized void handlePacket(Packet p) {
-		System.out.println("Got new packet: ");
+		if(!(p instanceof StatusPacket))
+			System.out.println("Got new packet: ");
 		packets.add(p);
 		
 	}

@@ -6,9 +6,12 @@ import cs518.cryptdb.common.Util;
 import cs518.cryptdb.common.crypto.CryptoScheme;
 import cs518.cryptdb.common.pair.Pair;
 import cs518.cryptdb.proxy.SchemaManager;
+import net.sf.jsqlparser.expression.Expression;
+import net.sf.jsqlparser.expression.Function;
 import net.sf.jsqlparser.expression.LongValue;
 import net.sf.jsqlparser.expression.StringValue;
 import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
+import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
 import net.sf.jsqlparser.expression.operators.relational.OldOracleJoinBinaryExpression;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
@@ -55,11 +58,38 @@ public class EncryptExpression extends ExpressionDeParser {
 		this.columnId = col.getFullyQualifiedName();
 		this.tableId = table.getFullyQualifiedName();
 		this.tableId = Util.stripBackticks(tableId);
-		String subCol = schemaMgr.getSubcolumnForScheme(table.getFullyQualifiedName(),
-														col.getFullyQualifiedName(), CryptoScheme.DET);
-		String encryptedCol = schemaMgr.getPhysicalColumnName(table.getFullyQualifiedName(), subCol);
-		System.out.println("encryptedCol: " + encryptedCol);
-		buffer.append(encryptedCol);
+		if(!columnId.equals("ROWID")) {
+			
+			String subCol = schemaMgr.getSubcolumnForScheme(table.getFullyQualifiedName(),
+															col.getFullyQualifiedName(), CryptoScheme.DET);
+			String encryptedCol = schemaMgr.getPhysicalColumnName(table.getFullyQualifiedName(), subCol);
+			buffer.append(encryptedCol);
+		} else {
+			buffer.append(columnId);
+		}
+		//System.out.println("encryptedCol: " + encryptedCol);
+		
+	}
+	
+	@Override
+	public void visit(Function f) {
+		tableId = table.getFullyQualifiedName();
+		this.tableId = Util.stripBackticks(tableId);
+		if(f.getName().equals("MAX") || f.getName().equals("MIN")) {
+			ExpressionList el = f.getParameters();
+			for(Expression e : el.getExpressions()) {
+				if(e instanceof Column) {
+					Column c = (Column) e;
+					String subcol = schemaMgr.getSubcolumnForScheme(tableId, c.getColumnName(), CryptoScheme.OPE);
+					String pCol = schemaMgr.getPhysicalColumnName(tableId, subcol);
+					c.setColumnName(pCol);
+				} else {
+					throw new UnsupportedOperationException();
+				}
+			}
+			
+		}
+		super.visit(f);
 	}
 		
 	@Override
