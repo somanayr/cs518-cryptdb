@@ -23,7 +23,8 @@ public class SQLSequenceReader {
 		Profiling.startTimer("Run time");
 		int ct = 0;
 		for(String s : l) {
-			Profiling.startTimer("Latency");
+			String timerName = "Latency: " + s.substring(0, s.indexOf(' '));
+			Profiling.startTimer(timerName);
 			if(!s.startsWith("INSERT"))
 				System.out.println("Next statement: " + s);
 			ct += 1;
@@ -31,7 +32,7 @@ public class SQLSequenceReader {
 				System.out.printf("%d%% of statements submitted\n", ct * 100 / l.size());
 			}
 			am.sendStatement(s);
-			Profiling.stopTimer("Latency");
+			Profiling.stopTimer(timerName);
 		}
 		Profiling.pauseTimer("Run time");
 	}
@@ -47,6 +48,7 @@ public class SQLSequenceReader {
 		try(BufferedReader reader = new BufferedReader(new FileReader(new File(dir, fn)))) {
 			StringBuffer seq = new StringBuffer();
 			String line;
+			int addedLines = 0;
 			while((line=reader.readLine()) != null) {
 				line = line.split("(--|#)")[0];
 				line = line.trim();
@@ -63,7 +65,9 @@ public class SQLSequenceReader {
 							//nop
 						} else {
 							al.add(statement); 
-							if(al.size() > 1000) { //FIXME stop max size
+							addedLines ++;
+
+							if(addedLines >= 1000) { //FIXME stop max size
 								return al;
 							}
 						}
@@ -73,6 +77,9 @@ public class SQLSequenceReader {
 							seq.append(' ');
 					}
 				}
+			}
+			if(seq.length() != 0) {
+				al.add(seq.toString());
 			}
 		}
 		return al;

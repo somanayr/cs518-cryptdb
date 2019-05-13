@@ -40,7 +40,7 @@ public class Profiling {
 						min = Math.min(min, l);
 					}
 					avg /= hist.size();
-					System.out.printf("%s: avg=%d,max=%d,min=%d,\n",name,avg,max,min);
+					System.out.printf("%s: avg=%d,max=%d,min=%d,ct=%d\n",name,avg,max,min, hist.size());
 				}
 			}
 		}));
