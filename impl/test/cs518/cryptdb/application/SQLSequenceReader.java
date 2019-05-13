@@ -67,7 +67,7 @@ public class SQLSequenceReader {
 							al.add(statement); 
 							addedLines ++;
 
-							if(addedLines >= 1000) { //FIXME stop max size
+							if(addedLines >= 10000) { //FIXME stop max size
 								return al;
 							}
 						}
