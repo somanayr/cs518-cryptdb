@@ -1,5 +1,8 @@
 # cs518-cryptdb
 
+## Warning
+This software is not intended for production use. It was developed for learning purposes only, and is undoubtedly full of bugs and other nasty critters that you don't want in a real world application.
+
 ## Dependencies:
 Put dependencies in the lib/ folder
 
