@@ -46,5 +46,19 @@
             <zipfileset dir="../lib" includes="ope.jar"/>
             <zipfileset dir="../lib" includes="jsqlparser-2.1-SNAPSHOT.jar"/>
         </jar>
-        </target>
+
+		<jar destfile="${dir.jarfile}/stupidproxy.jar">
+            <manifest>
+                <attribute name="Main-Class" value="org.eclipse.jdt.internal.jarinjarloader.JarRsrcLoader"/>
+                <attribute name="Rsrc-Main-Class" value="cs518.cryptdb.proxy.StupidProxy"/>
+                <attribute name="Class-Path" value="."/>
+                <attribute name="Rsrc-Class-Path" value="./ h2-1.4.199.jar ope.jar jsqlparser-2.1-SNAPSHOT.jar"/>
+            </manifest>
+            <zipfileset src="jar-in-jar-loader.zip"/>
+            <fileset dir="${dir.buildfile}/bin"/>
+            <zipfileset dir="../lib" includes="h2-1.4.199.jar"/>
+            <zipfileset dir="../lib" includes="ope.jar"/>
+            <zipfileset dir="../lib" includes="jsqlparser-2.1-SNAPSHOT.jar"/>
+        </jar>
+    </target>
 </project>
