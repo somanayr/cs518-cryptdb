@@ -11,7 +11,8 @@ Included as a submodule
 ```> git submodule update --init
 > cd ope/ope
 > mvn package
-> mv ope/ope/target/ope-0.0.1-SNAPSHOT.jar lib/ope.jar```
+> mv ope/ope/target/ope-0.0.1-SNAPSHOT.jar lib/ope.jar
+```
 
 Similarly, build and copy JSqelParser to lib/
 
