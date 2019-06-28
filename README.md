@@ -1,4 +1,8 @@
 # cs518-cryptdb
+Developed for [COS 518: Advanced Computer Systems](http://www.cs.princeton.edu/courses/archive/spr19/cos518/) in Spring 2019.
+
+## Report
+You can read our report about this project [on Medium](https://medium.com/princeton-systems-course/re-implementing-cryptdb-dbb8c582e9d9).
 
 ## Warning
 This software is not intended for production use. It was developed for learning purposes only, and is undoubtedly full of bugs and other nasty critters that you don't want in a real world application.
